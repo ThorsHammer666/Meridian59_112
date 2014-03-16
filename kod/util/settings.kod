@@ -184,6 +184,9 @@ properties:
    % is now possible for a flat fee (initially 1 million).
    piPardonIndulgenceCost = 1000000
 
+   % Chance of getting an instance portal upon a kill
+   piInstancePortalChance = 100
+
 messages:
 
    Constructor(server_num = $)
@@ -453,6 +456,11 @@ messages:
 GetPardonIndulgenceCost()
    {
       return piPardonIndulgenceCost;
+   }
+   
+   GetInstancePortalChance()
+   {
+      return piInstancePortalChance;
    }
 
 end
