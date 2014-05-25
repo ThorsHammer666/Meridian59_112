@@ -1064,14 +1064,14 @@ messages:
    
    GetResistances()
    {
-      return plResistances;
+      return Send(self,@GetCurrentResistances);
    }
    
    GetResistanceValueByType(type=$)
    {
       local oResist;
       
-      for oResist in plResistances
+      for oResist in Send(self,@GetCurrentResistances)
       {
          if Nth(oResist,2) = type
          {
