@@ -99,6 +99,20 @@ messages:
    {
       return 0;
    }
+  
+   EffectDesc(who=$)
+   {
+      AppendTempString("\n\n");
+      AppendTempString("Your current ");
+      AppendTempString(Send(self,@GetName));
+      AppendTempString(" enchantment adds ");
+      AppendTempString(Send(who,@GetEnchantedState,#what=self));
+      AppendTempString("\% ");
+      AppendTempString(Send(SYS,@GetResistanceName,#type=viResistanceType));
+      AppendTempString(".");
+      
+      return;
+   }
    
 end
 
