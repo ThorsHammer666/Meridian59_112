@@ -199,5 +199,10 @@ messages:
       return piDamage_reduce;
    }
 
+   GetDefenseBonus()
+   {
+      return piDefense_bonus;
+   }
+   
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
