@@ -51,11 +51,13 @@ void InterfaceInit(void)
       default_buttons[i].hModule = hInst;
       ToolbarAddButton(&default_buttons[i]);
    }
-
+   RequestStatGroups();
    RequestSkills();
    RequestSpells();
+
    SpellsInit();
    ActionsInit();
+   LanguageInit();
    InventoryBoxCreate(cinfo->hMain);
    StatsCreate(cinfo->hMain);
    GroupsLoad();
@@ -97,6 +99,7 @@ void InterfaceInit(void)
  */
 void InterfaceExit(void)
 {
+   LanguageExit();
    AliasExit();
    ActionsExit();
    SpellsExit();
@@ -191,9 +194,10 @@ void InterfaceResetData(void)
    else
       SendTempSafe(0);
 
+   RequestStatGroups();
    RequestSpells();
    RequestSkills();
-   RequestStatGroups();
+
    InventoryResetData();
    EnchantmentsResetData();
    GuildResetData();
@@ -411,7 +415,9 @@ Bool InterfaceAction(int action, void *action_data)
 Bool CheckForAlwaysActiveSpells(spelltemp *sp)
 {
    char *name;
-   name = LookupNameRsc(sp->obj.name_res);
+
+   // Use the redbook rsc function, always returns English string.
+   name = LookupRscRedbook(sp->obj.name_res);
 
    if (stricmp(name, "phase") == 0)
    {

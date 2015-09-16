@@ -19,6 +19,8 @@ constants:
 
 resources:
 
+   include jasab13.lkod
+
    room_jasperAB13 = jasab13.roo
    room_name_JasperAB13 = "Dusty Chamber"
 
@@ -49,6 +51,11 @@ messages:
       plExits = Cons([ 5, 8, RID_JASWEST, 35, 25, ROTATE_NONE ],plExits);
 
       propagate;
+   }
+
+   GetRegion()
+   {
+      return RID_HISTORIC;
    }
 
 end

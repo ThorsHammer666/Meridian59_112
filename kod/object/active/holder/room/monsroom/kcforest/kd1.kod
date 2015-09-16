@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include kd1.lkod
+
    room_name_OutdoorsKD1 = "Lair of the Bone Priestess"
    room_OutdoorsKD1 = KD1.roo
    OutdoorsKD1_music = boneprst.mp3
@@ -41,13 +43,13 @@ properties:
 
    piDirectional_percent = DIRECTIONAL_PERCENT_OUTDOORS
 
-   piGen_time = 90000
+   piGen_time = 25000
    piGen_percent = 70
 
    piInit_count_min = 5
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
    pbSnowGroundTexture = TRUE
 

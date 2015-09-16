@@ -15,6 +15,8 @@ constants:
 
 resources:
 
+   include fireball.lkod
+
    fireball_name_rsc = "fireball"
    fireball_icon_rsc = fireball.bgf
    fireball_look_icon = ifirebal.bgf
@@ -78,7 +80,7 @@ messages:
 
    SendLookAnimation()
    {
-      AddPacket(1,ANIMATE_NONE, 2,1);
+      AddPacket(1,ANIMATE_NONE, 2,2);
 
       return;
    }

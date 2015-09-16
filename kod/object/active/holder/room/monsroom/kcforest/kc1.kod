@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include kc1.lkod
+
    room_name_OutdoorsKC1 = "The Chasm"
    room_OutdoorsKC1 = KC1.roo
    OutdoorsKC1_music = avarwar.mp3
@@ -41,13 +43,13 @@ properties:
 
    piDirectional_percent = DIRECTIONAL_PERCENT_OUTDOORS
 
-   piGen_time = 90000
+   piGen_time = 25000
    piGen_percent = 70
 
    piInit_count_min = 5
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
    pbSnowGroundTexture = TRUE
 

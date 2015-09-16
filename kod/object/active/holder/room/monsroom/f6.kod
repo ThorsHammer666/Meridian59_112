@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include f6.lkod
+
    room_OutdoorsF6 = F6.roo
    room_name_OutdoorsF6 ="Off the beaten path"
    OutdoorsF6_music = walk1.mp3
@@ -45,13 +47,12 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 70000
    piGen_percent = 60
 
    piInit_count_min = 3
    piInit_count_max = 6
 
-   piMonster_count_max = 10
+   piMonster_count_max = 15
 
 messages:
 

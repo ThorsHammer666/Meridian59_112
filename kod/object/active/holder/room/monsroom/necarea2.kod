@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include necarea2.lkod
+
    room_name_Necropolis2 = "Ancient Graveyard of Brax"
    room_Necropolis2 = necarea2.roo
    Necropolis2_music = nec01.mp3
@@ -39,7 +41,7 @@ properties:
    piBaseLight = LIGHT_VERY_DARK
    piOutside_factor = 0
 
-   piGen_time = 40000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 7

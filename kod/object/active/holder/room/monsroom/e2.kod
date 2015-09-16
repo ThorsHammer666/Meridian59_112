@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include e2.lkod
+
    room_name_OutdoorsE2 = "The Great Ocean"
    room_OutdoorsE2 = E2.roo
    OutdoorsE2_music = walk7.mp3
@@ -50,7 +52,7 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 45000
+   piGen_time = 20000
    piGen_percent = 70
 
    piInit_count_min = 2

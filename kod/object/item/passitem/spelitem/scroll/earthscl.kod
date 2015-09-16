@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include earthscl.lkod
+
    EarthquakeScroll_label_name_rsc = "scroll of earthquake"
    EarthquakeScroll_icon_rsc = scr08.bgf
    EarthquakeScroll_desc_rsc = \
@@ -28,10 +30,11 @@ classvars:
    viSpellEffect = SID_EARTHQUAKE
    viColor = XLAT_TO_ORANGE
 
+   vbDisabled = TRUE
+
 properties:
 
    vrDesc = EarthquakeScroll_desc_rsc
-   pbDisabled = TRUE
 
 messages:
 

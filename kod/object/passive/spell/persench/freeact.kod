@@ -14,11 +14,9 @@ constants:
 
    include blakston.khd
 
-   % What percent of spellpower should we take in order to give the player
-   %  a chance to completely resist hold?
-   SPELL_RESIST_PERCENT = 15
-
 resources:
+
+   include freeact.lkod
 
    FreeAction_name_rsc = "free action"
    FreeAction_icon_rsc = ifreeact.bgf
@@ -26,7 +24,10 @@ resources:
       "Kraanan's love of battle helps repel magic which might hinder "
       "your movements, and thus the liberal dispensation of lusty blows.  "
       "Requires one red mushroom and one purple mushroom to cast."
-   
+   freeaction_enchantment_rsc = \
+      "\n\nYour current %s enchantment will completely resist an attempt to "
+      "paralyze you %i%% of the time.  Successful attempts to paralyze you "
+      "will be reduced by %i%%."
    FreeAction_on_rsc = \
       "You feel a rush of energy and fluid motion throughout your body."
    FreeAction_off_rsc= "Your strange feeling of freedom subsides."
@@ -49,7 +50,6 @@ classvars:
    vrDesc = FreeAction_desc_rsc
    vrSucceed_wav = FreeAction_sound
 
-
    vrAlreadyEnchanted = FreeAction_already_enchanted_rsc
    vrEnchantment_On = FreeAction_On_rsc
    vrEnchantment_Off = FreeAction_Off_rsc
@@ -67,6 +67,15 @@ classvars:
 
 properties:
 
+   % This controls how effective FA is at reducing CC duration.
+   % Higher value makes EE less effective.
+   % 100 = 50% reduction, 150 = 33% reduction.
+   piReductionFactor = 150 % Recommended value 150.
+
+   % What percent of spellpower should we take in order to
+   % give the player a chance to completely resist hold?
+   piResistPercent = 15
+
 messages:
 
    ResetReagents()
@@ -82,7 +91,7 @@ messages:
    {
       local iFactor;
 
-      iFactor = bound(iSpellPower/2+5,10,50);
+      iFactor = Bound(iSpellPower / 2 + 5,10,50);
 
       return iFactor;
    }
@@ -106,16 +115,17 @@ messages:
       oFreeActionStrength = Send(oTarget,@GetEnchantedState,#what=self);
 
       % Give players a decent chance to improve the spell!
-      for i in Send(oTarget,@GetPassiveImprovementList)
+      foreach i in Send(oTarget,@GetPassiveImprovementList)
       {
-         if First(i) = self AND random(1,3) = 3
+         if First(i) = self
+            AND Random(1,3) = 3
          {
             Post(First(i),@ImproveAbility,#who=oTarget);
          }
       }
 
       % Check if they repel hold outright 1 - 15% chance.
-      if Random(0,100) <= ((oFreeActionStrength * SPELL_RESIST_PERCENT) / 100)
+      if Random(0,100) <= ((oFreeActionStrength * piResistPercent) / 100)
       {
          Send(oTarget,@MsgSendUser,#message_rsc=FreeAction_evade);
          if IsClass(oHoldCaster,&Player)
@@ -126,7 +136,7 @@ messages:
          return $;
       }
 
-      iNewDuration = iDuration - (iDuration * oFreeActionStrength)/150;
+      iNewDuration = iDuration - (iDuration * oFreeActionStrength) / piReductionFactor;
       Post(oTarget,@MsgSendUser,#message_rsc=FreeAction_resist);
 
       if IsClass(oHoldCaster,&Player)
@@ -150,16 +160,15 @@ messages:
 
    EffectDesc(who=$)
    {
-      AppendTempString("\n\n");
-      AppendTempString("Your current ");
-      AppendTempString(Send(self,@GetName));
-      AppendTempString(" enchantment will completely resist an attempt to paralyze you ");
-      AppendTempString(Send(who,@GetEnchantedState,#what=self) * SPELL_RESIST_PERCENT / 100);
-      AppendTempString("\% of the time. Successful attempts to paralyze you will be reduced by ");
-      AppendTempString(100 * Send(who,@GetEnchantedState,#what=self) / 150);
-      AppendTempString("\%.");
-      
-      propagate;
+      local iState;
+
+      iState = Send(who,@GetEnchantedState,#what=self);
+
+      AddPacket(4,freeaction_enchantment_rsc, 4,Send(self,@GetName),
+                4,iState * piResistPercent / 100,
+                4,100 * iState / piReductionFactor);
+
+      return;
    }
 
 end

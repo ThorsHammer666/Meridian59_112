@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include ka5.lkod
+
    room_name_OutdoorsKA5 = "Outside the Guard Tower"
    room_OutdoorsKA5 = KA5.roo
    OutdoorsKA5_music = avarwar.mp3
@@ -41,13 +43,13 @@ properties:
 
    piDirectional_percent = DIRECTIONAL_PERCENT_OUTDOORS
 
-   piGen_time = 90000
+   piGen_time = 20000
    piGen_percent = 70
 
    piInit_count_min = 5
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
 messages:
 

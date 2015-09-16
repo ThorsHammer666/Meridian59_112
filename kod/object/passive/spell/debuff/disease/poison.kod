@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include poison.lkod
+
    poison_start = "Fresh poison courses through your veins like fire."
    poison_stop  = "The poison abates somewhat."
    poison_icon = iposoned.bgf
@@ -83,7 +85,7 @@ messages:
       if Send(who,@IsEnchanted,#what=oSpell)
       {
          % Give players a decent chance to improve the spell!
-         for i in Send(who,@GetPassiveImprovementList)
+         foreach i in Send(who,@GetPassiveImprovementList)
          {
             if First(i) = oSpell
             {
@@ -108,6 +110,14 @@ messages:
 
    EndEnchantment(who=$,state=0,report=TRUE)
    {
+      % Handle transition from 3-element enchantment list elements to
+      % 4-element ones.
+      if state = 0
+         OR state = $
+      {
+         state = Send(who,@GetRawState,#what=self);
+      }
+
       Send(who,@RemovePoison,#strength=state);
       if report
       {

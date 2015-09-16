@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include k5.lkod
+
    room_OutdoorsK5 = K5.roo
    room_name_OutdoorsK5 ="The Badlands"
    OutdoorsK5_music = walk5.mp3
@@ -44,7 +46,7 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 60000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 5
@@ -112,7 +114,7 @@ messages:
    {
       local oBramble, lLocation;
 
-      for lLocation in plDeadBrambles
+      foreach lLocation in plDeadBrambles
       {
          Send(self,@CreateBramble,#lLocation=lLocation);
       }

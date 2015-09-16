@@ -18,6 +18,8 @@ constants:
 
 resources:
 
+   include unholywp.lkod
+
    unholyweapon_cast_rsc = "Your %s is now dedicated to Qor."
    unholyweapon_no_can = "You cannot dedicate %s%s to Qor."
    unholyweapon_fails = "The %s is strangely unaffected by the spell."
@@ -32,9 +34,10 @@ resources:
       "Requires two fairy wings and an orc tooth to cast."
 
    unholyweapon_spell_intro = \
-      "Qor Lv. 2: Dedicates your weapon to Qor, enhancing its effectiveness against the holy."
+      "Qor Lv. 2: Dedicates your weapon to Qor, enhancing its "
+      "effectiveness against the holy."
 
-   unholyweapon_label_rsc = "supplicant of Qor."
+   unholyweapon_label_rsc = "supplicant of Qor"
 
 classvars:
 
@@ -71,6 +74,12 @@ messages:
    CanPayCosts(who=$,lTargets=$,iSpellPower=0)
    {
       local oWeapon;
+
+      if lTargets = $
+      {
+         return FALSE;
+      }
+
       oWeapon = First(lTargets);
 
       if oWeapon = $

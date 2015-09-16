@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include c6.lkod
+
    room_OutdoorsC6 = C6.roo
    room_name_OutdoorsC6 ="Forest of Farol"
    OutdoorsC6_music = walk5.mp3
@@ -45,7 +47,6 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 110000
    piGen_percent = 70
 
    piInit_count_min = 3

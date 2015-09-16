@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include g8.lkod
+
    room_OutdoorsG8 = G8.roo
    room_name_OutdoorsG8 ="The Cragged Mountains"
    OutdoorsG8_music = walk4.mp3
@@ -37,7 +39,7 @@ properties:
 
    piBaseLight = LIGHT_NICE
    piOutside_factor = 8
-   piGen_time = 100000
+   piGen_time = 20000
    piGen_percent = 80
 
    piDirectional_percent = DIRECTIONAL_PERCENT_OUTDOORS

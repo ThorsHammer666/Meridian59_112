@@ -27,6 +27,7 @@ constants:
    CARPET_D = 09588        % light wood (tos inn floor)
    CARPET_E = 09637        % dark wood
                            % add?: bar inn red carpet
+   CARPET_G = 08961        % kocatan wooden panels
 
    WALLPAPER_A = 50053     % cream vines (off-white)
    WALLPAPER_B = 50057     % brown victorian medallions
@@ -34,6 +35,7 @@ constants:
    WALLPAPER_D = 50069     % white paisley brocade
    WALLPAPER_E = 09583     % brick (tos apoth wall - no picture allowed)
    WALLPAPER_F = 09586     % wood panelling
+   WALLPAPER_G = 50078     % kocatan wall with blue stripe
 
    BEDSPREAD_A = 50061     % blue
    BEDSPREAD_B = 50063     % red
@@ -56,6 +58,8 @@ constants:
 
 resources:
 
+   include rentroom.lkod
+
    RentableRoom_name = "A tastefully appointed room"
    RentableRoom_roo = barrent.roo
 
@@ -66,17 +70,19 @@ resources:
    RentableRoom_carpet_options = \
       "We have two shades of carpet, a light grey and a darker grey, or "
       "if you prefer wood floors I can put in one with a light or a "
-      "dark finish."
+      "dark finish.  We also have wood floors made from Ko'catan timber."
    RentableRoom_bedspread_options = \
       "We have basic red and blue bedspreads, as well as a nice "
       "black floral pattern and my personal favorite, white linen."
    RentableRoom_wallpaper_options = \
       "I can offer you a number of different kinds of wallpaper.  I have "
       "a nice vine pattern in a cream color, a traditional Barloquan medallion "
-      "pattern in brown, a floral pattern on black, or a white paper with a "
-      "delicately embossed pattern.  Also, if you want a more spare look we "
-      "can go with brick or wood panelling, but if you choose one of those, "
-      "I can't hang a painting for you; they're too hard to put a hole in."
+      "pattern in brown, a floral pattern on black or a white paper with a "
+      "delicately embossed pattern.  "
+      "Also, if you want a more spare look we can go with brick or wood "
+      "panelling, or a Ko'catan white stone with blue stripe, but if you "
+      "choose one of those, I can't hang a painting for you; they're too "
+      "hard to put a hole in.  "
    RentableRoom_picture_options = \
       "Right now, the only framed art I have ready to hang is a still life "
       "of a flower vase, a reproduction of an ancient tapestry depicting a "
@@ -111,9 +117,6 @@ resources:
       "I am also impressed that you have all the heartstones.  I can make "
       "some rare objects that require them all."
 
-   RentableRoom_comma = ", "
-   RentableRoom_and = "and "
-
    % Rentable Room commands:
    RentableRoom_command_here = "here"
 
@@ -132,6 +135,8 @@ resources:
    RentableRoom_command_light_hardwood = "light hardwood"
    RentableRoom_command_dark_wood = "dark wood"
    RentableRoom_command_dark_hardwood = "dark hardwood"
+   RentableRoom_command_island_floor = "Ko'catan timber"
+   RentableRoom_command_island_floor_two = "kocatan timber"
 
    RentableRoom_command_cream = "cream"
    RentableRoom_command_vine = "vine"
@@ -140,6 +145,9 @@ resources:
    RentableRoom_command_traditional = "traditional"
    RentableRoom_command_barloq = "Barloq"
    RentableRoom_command_medallion = "medallion"
+   RentableRoom_command_bluestripe = "kocatan"
+   RentableRoom_command_bluestripe_two = "Ko'catan"
+   RentableRoom_command_bluestripe_three = "stripe"
 
    RentableRoom_command_flower = "flower"
    RentableRoom_command_paisley = "paisley"
@@ -268,6 +276,7 @@ messages:
                     ]
                   ];
 
+      Send(self,@RecalcLightAndWeather);
       Post(self,@InitializeDecor);
 
       propagate;
@@ -276,9 +285,9 @@ messages:
    InitializeDecor()
    {
       Send(self,@SetBedSector);
-      Send(self,@SetBedSpread);
-      Send(self,@SetCarpet);
-      Send(self,@SetWallpaper);
+      Send(self,@SetBedSpread,#num=piBedSpread);
+      Send(self,@SetCarpet,#num=piCarpet);
+      Send(self,@SetWallpaper,#num=piWallpaper);
       Send(self,@SetPicture,#num=random(1,3));
       Send(self,@SetPictureLocation,#num=random(1,viPictureLocationMax));
       Send(self,@NewHold,#what=create(&Mint),
@@ -322,7 +331,10 @@ messages:
 
       if sector = $
       {
-         sector = random(viBedSectorMin,viBedSectorMax);
+         % Set the current bed sector to $, we might choose it in the random
+         % choice and still need to do the initial set up for it.
+         piBedSector = $;
+         sector = Random(viBedSectorMin,viBedSectorMax);
       }
 
       if piBedSector = sector
@@ -350,7 +362,7 @@ messages:
       Send(self,@ChangeTexture,#id=piBedSector,#new_texture=(piBedSpread+1),
             #flags=CTF_BELOWWALL);
 
-      for i in Send(self,@GetHolderPassive)
+      foreach i in Send(self,@GetHolderPassive)
       {
          if IsClass(First(i),&Pillow)
          {
@@ -428,11 +440,6 @@ messages:
    {
       local i;
 
-      if piWallpaper = num
-      {
-         return FALSE;
-      }
-
       piWallpaper = num;
 
       i = WALLPAPER_ID - 1;
@@ -461,6 +468,13 @@ messages:
          return FALSE;
       }
 
+      if piWallPaper = WALLPAPER_E
+         OR piWallPaper = WALLPAPER_F
+         OR piWallPaper = WALLPAPER_G
+      {
+         return FALSE;
+      }
+
       piPicture = num;
       Send(self,@ChangeTexture,#id=(WALLPAPER_ID+piPictureLocation),
             #new_texture=(piWallpaper+piPicture),#flags=CTF_NORMALWALL);
@@ -475,6 +489,13 @@ messages:
       if piPictureLocation = num
          OR num < 1
          OR num > viPictureLocationMax
+      {
+         return FALSE;
+      }
+
+      if piWallPaper = WALLPAPER_E
+         OR piWallPaper = WALLPAPER_F
+         OR piWallPaper = WALLPAPER_G
       {
          return FALSE;
       }
@@ -517,7 +538,7 @@ messages:
          iBedSector = Send(self,@GetBedSectorNear,#who=who);
          if iBedSector <> $
          {
-            for i in Send(self,@GetHolderPassive)
+            foreach i in Send(self,@GetHolderPassive)
             {
                if Send(self,@GetBedSectorNear,#who=First(i))=iBedSector
                {
@@ -586,7 +607,7 @@ messages:
 
    TrySetCarpet(string=$)
    {
-      local iLtGray, iDkGray, iLtWood, iDkWood;
+      local iLtGray, iDkGray, iLtWood, iDkWood, iKcWood;
 
       if string = $
       {
@@ -601,8 +622,10 @@ messages:
                  OR StringContain(string,RentableRoom_command_light_hardwood));
       iDkWood = (StringContain(string,RentableRoom_command_dark_wood)
                  OR StringContain(string,RentableRoom_command_dark_hardwood));
+      iKcWood = (StringContain(string,RentableRoom_command_island_floor)
+                 OR StringContain(string,RentableRoom_command_island_floor_two));
 
-      if (iLtGray + iDkGray + iLtWood + iDkWood) > 1
+      if (iLtGray + iDkGray + iLtWood + iDkWood + iKcWood) > 1
       {
          % Confusing command.  Ask for more info.
          return $;
@@ -628,12 +651,17 @@ messages:
          return Send(self,@SetCarpet,#num=CARPET_E);
       }
 
+      if iKcWood
+      {
+         return Send(self,@SetCarpet,#num=CARPET_G);
+      }
+
       return $;
    }
 
    TrySetWallpaper(string=$)
    {
-      local iCream,iBrown,iBlack,iWhite,iBrick,iWood,iRetValue;
+      local iCream, iBrown, iBlack, iWhite, iBrick, iWood, iStripe, iRetValue;
 
       if string = $
       {
@@ -654,8 +682,11 @@ messages:
                 OR StringContain(string,RentableRoom_command_paisley));
       iBrick = StringContain(string,RentableRoom_command_brick);
       iWood = StringContain(string,RentableRoom_command_wood);
+      iStripe = (StringContain(string,RentableRoom_command_bluestripe)
+                OR StringContain(string,RentableRoom_command_bluestripe_two)
+                OR StringContain(string,RentableRoom_command_bluestripe_three));
 
-      if (iCream+iBrown+iBlack+iWhite+iBrick+iWood) > 1
+      if (iCream + iBrown + iBlack + iWhite + iBrick + iWood + iStripe) > 1
       {
          % Confusing command.  Ask for more info.
          return $;
@@ -695,6 +726,13 @@ messages:
          return Send(self,@SetWallpaper,#num=WALLPAPER_F);
       }
 
+      if iStripe
+      {
+         Send(self,@SetPicture,#num=PICTURE_NONE);
+
+         return Send(self,@SetWallpaper,#num=WALLPAPER_G);
+      }
+
       return $;
    }
 
@@ -705,6 +743,7 @@ messages:
       if (string = $ AND NOT bRemove)
          OR (piWallPaper = WALLPAPER_E)
          OR (piWallPaper = WALLPAPER_F)
+         OR (piWallPaper = WALLPAPER_G)
       {
          return FALSE;
       }
@@ -787,7 +826,7 @@ messages:
       while iLoop < length(plObjects)
       {
          iLoop = iLoop + 1;
-         for oObj in Nth(plObjects,iLoop)
+         foreach oObj in Nth(plObjects,iLoop)
          {
             if Send(oObj,@GetName) = Send(oItem,@GetName)
             {
@@ -803,9 +842,9 @@ messages:
    {
       local i, j;
 
-      for i in plObjects
+      foreach i in plObjects
       {
-         for j in i
+         foreach j in i
          {
             if StringContain(string,Send(j,@GetName))
             {
@@ -818,46 +857,27 @@ messages:
    }
 
    GetObjectList(who=$,oDecorator=$)
+   "Returns a list of the available objects."
    {
-      local i, j, oPreviousObject, sObjectList;
+      local i, j, lObjectList;
 
       % Note: we get away with a simple algorithm here
       % because we know there are at least 4 objects at all times.
 
-      ClearTempString();
-      oPreviousObject = $;
-
       i = 0;
-      while i < length(plObjects)
+      lObjectList = $;
+      while i++ < Length(plObjects)
       {
-         i = i + 1;
          if Send(self,@CanAccessObject,#category=i,#who=who)
          {
-            for j in Nth(plObjects,i)
+            foreach j in Nth(plObjects,i)
             {
-               if oPreviousObject <> $
-               {
-                  AppendTempString(Send(oPreviousObject,@GetIndef));
-                  AppendTempString(Send(oPreviousObject,@GetName));
-                  AppendTempString(RentableRoom_comma);
-               }
-
-               oPreviousObject = j;
+               lObjectList = Cons(j,lObjectList);
             }
          }
       }
 
-      if oPreviousObject <> $
-      {
-         AppendTempString(RentableRoom_and);
-         AppendTempString(Send(oPreviousObject,@GetIndef));
-         AppendTempString(Send(oPreviousObject,@GetName));
-      }
-
-      sObjectList = CreateString();
-      SetString(sObjectList,GetTempString());
-
-      return sObjectList;
+      return lObjectList;
    }
 
    TryPlaceObject(who=$, string=$, template=$, oDecorator=$)
@@ -890,7 +910,7 @@ messages:
          iSnapFineCol = Send(self,@GetSnappedFineCoord,
                              #unsnappedCoord=Send(who,@GetFineCol));
 
-         for i in Send(self,@GetHolderPassive)
+         foreach i in Send(self,@GetHolderPassive)
          {
             if (Send(First(i),@GetRow)=Send(who,@GetRow))
                AND (Send(First(i),@GetCol)=Send(who,@GetCol))
@@ -968,7 +988,7 @@ messages:
          lInventory = Send(self,@GetHolderPassive);
       }
       
-      for i in lInventory
+      foreach i in lInventory
       {
          if IsClass(First(i),GetClass(template))
             AND StringEqual(Send(First(i),@GetName),Send(template,@GetName))

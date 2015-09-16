@@ -320,6 +320,7 @@ BEGIN
     13                      "Ausdauer"
     14                      "Lächeln"
     15                      "Grimmig"
+    245                     "zaubern "
 END
 
 STRINGTABLE 
@@ -448,6 +449,11 @@ BEGIN
     IDS_MENU_SAD            "T&raurig"
     IDS_MENU_NEUTRAL        "&Neutral"
     IDS_MENU_WRY            "Gri&mmig"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_LANGUAGE_MENU       "&Sprache"
 END
 
 #endif    // German (Neutral) resources
@@ -902,6 +908,7 @@ IDB_SBUTTON1_LEFT       BITMAP                  "bitmap\\statbtn_left_stats.bmp"
 IDB_SBUTTON2_LEFT       BITMAP                  "bitmap\\statbtn_left_spell.bmp"
 IDB_SBUTTON3_LEFT       BITMAP                  "bitmap\\statbtn_left_skills.bmp"
 IDB_SBUTTON4_LEFT       BITMAP                  "bitmap\\statbtn_left_invent.bmp"
+IDB_SBUTTON5_LEFT       BITMAP                  "bitmap\\statbtn_left_quest.bmp"
 IDB_SBUTTON1_MID        BITMAP                  "bitmap\\statbtn_mid.bmp"
 IDB_SBUTTON2_MID        BITMAP                  "bitmap\\statbtn_mid.bmp"
 IDB_SBUTTON3_MID        BITMAP                  "bitmap\\statbtn_mid.bmp"
@@ -989,6 +996,7 @@ BEGIN
     IDS_TOUGHER             "Tougher Chance"
     IDS_TBSMILE             "Smile"
     IDS_TBFROWN             "Frown"
+    IDS_DOCAST              "cast "
 END
 
 STRINGTABLE 
@@ -1086,6 +1094,7 @@ BEGIN
     IDS_SGROUP4             "School of Faren"
     IDS_SGROUP6             "DM spells"
     IDS_TT_INVENTORY        "Inventory"
+    IDS_TT_QUEST            "Quests"
     IDS_HEL                 "Type the entire word ""help"" to open help."
     IDS_MENU_WHO            "&Who is logged on"
     IDS_INVALIDALIAS        "Invalid command stored in alias. (Press F1 or '?' for help.)"
@@ -1117,6 +1126,11 @@ BEGIN
     IDS_MENU_SAD            "&Sad"
     IDS_MENU_NEUTRAL        "&Neutral"
     IDS_MENU_WRY            "W&ry"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_LANGUAGE_MENU       "&Language"
 END
 
 #endif    // English (U.S.) resources

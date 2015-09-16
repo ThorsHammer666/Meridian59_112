@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include c3.lkod
+
    room_OutdoorsC3 = C3.roo
    room_name_OutdoorsC3 ="Quilicia Wood"
    OutdoorsC3_music = walk7.mp3
@@ -36,7 +38,7 @@ properties:
    prMusic = OutdoorsC3_music
    piRoom_num = RID_C3
   
-   piGen_time = 150000  
+   piGen_time = 25000
 
 messages:
 

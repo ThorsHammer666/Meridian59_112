@@ -17,6 +17,8 @@ constants:
 
 resources:
 
+   include admin.lkod
+
    admin_login = "Welcome to the game, Administrator %s."
    admin_admin_module = admin.dll
 
@@ -30,6 +32,9 @@ resources:
    admin_black = "You are now shadowform."
 
    admin_currently_in = "The ROO for `b%s`n is `k`B%s`n.  The room number is %i."
+   admin_currently_at = \
+      "Your Location is: `bRow: `k`B%i`n `bCol: `k`B%i`n `bfRow: `k`B%i`n "
+      "`bfCol: `k`B%i`n `bHeight: `k`B%i`n."
 
    admin_create_itematt_command = "create item attribute"
    admin_anonymous_command = "anonymous"
@@ -153,7 +158,7 @@ messages:
             return;
          }
 
-         for i in Send(SYS,@GetItemAtts)
+         foreach i in Send(SYS,@GetItemAtts)
          {
             if Send(i,@DMCreateItemAtt,#who=self,#string=string,
                     #oWeapon=oWeapon)
@@ -329,6 +334,18 @@ messages:
                #parm1=send(poOwner,@GetName),
                #parm2=send(poOwner,@GetRoomResource),
                #parm3=Send(poOwner,@GetRoomNum));
+
+         return;
+      }
+
+      if StringEqual(string,"get coords")
+      {
+         Send(self,@MsgSendUser,#message_rsc=admin_currently_at,
+               #parm1=piRow,
+               #parm2=piCol,
+               #parm3=piFine_Row,
+               #parm4=piFine_Col,
+               #parm5=GetHeight(Send(poOwner,@GetRoomData),piRow,piCol,piFine_row,piFine_col));
 
          return;
       }

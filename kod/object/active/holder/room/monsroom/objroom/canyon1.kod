@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include canyon1.lkod
+
    room_canyons = canyons.roo
    room_name_canyons = "The Berdonne Canyons"
 
@@ -86,6 +88,10 @@ messages:
       return FALSE;
    }
 
+   GetRegion()
+   {
+      return RID_HISTORIC;
+   }
 
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

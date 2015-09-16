@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include necare3a.lkod
+
    room_name_Necropolis3a = "Ancient Building"
    room_Necropolis3a = nec3a.roo
    Necropolis3a_music = nec02.mp3
@@ -39,7 +41,7 @@ properties:
    piBaseLight = LIGHT_MIN
    piOutside_factor = 0
 
-   piGen_time = 40000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 7

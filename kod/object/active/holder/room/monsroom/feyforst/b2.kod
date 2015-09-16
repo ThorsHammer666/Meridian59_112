@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include b2.lkod
+
    room_OutdoorsB2 = B2.roo
    room_name_OutdoorsB2 ="Lower Elhadrim"
    OutdoorsB2_music = walk7.mp3
@@ -35,7 +37,7 @@ properties:
    prMusic = OutdoorsB2_music
    piRoom_num = RID_B2
    
-   piGen_time = 240000
+   piGen_time = 25000
 
 messages:
    

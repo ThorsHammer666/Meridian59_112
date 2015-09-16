@@ -19,6 +19,8 @@ constants:
 
 resources:
 
+   include a5.lkod
+
    room_OutdoorsA5 = A5.roo
    room_name_OutdoorsA5 ="Seafarer's Peak"
    OutdoorsA5_music = forest.mp3
@@ -48,7 +50,7 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 40000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 5

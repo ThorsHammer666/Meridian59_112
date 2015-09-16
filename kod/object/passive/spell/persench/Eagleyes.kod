@@ -14,11 +14,9 @@ constants:
 
    include blakston.khd
 
-   % What percent of spellpower should we take in order to give the player a chance
-   % to completely resist a blinding spell?
-   SPELL_RESIST_PERCENT = 5
-
 resources:
+
+   include eagleyes.lkod
 
    EagleEyes_name_rsc = "eagle eyes"
    EagleEyes_icon_rsc = ieagleye.bgf
@@ -32,7 +30,11 @@ resources:
    EagleEyes_off_rsc = "The world seems somehow less distinct and vivid."
    EagleEyes_already_enchanted_rsc = "You already have Eagle Eyes."
    EagleEyes_Success_rsc = "You grant %s%s preternatural sight."
-
+   eagleeyes_enchantment_rsc = \
+      "\n\nYour current %s enchantment adds %i offense and 1 damage to your "
+      "ranged attacks.  It will completely resist an attempt to render you "
+      "sightless %i%% of the time.  Successful attempts to remove your sight "
+      "will be reduced by %i%%."
    EagleEyes_resist = \
       "Krannan's magic fights to penetrate the veil of darkness."
    EagleEyes_evade = "The magic of Krannan preserves your sight."
@@ -67,6 +69,14 @@ classvars:
 
 properties:
 
+   % This controls how effective EE is at reducing CC duration.
+   % Higher value makes EE less effective.
+   % 200 = 50% reduction, 300 = 33% reduction.
+   piReductionFactor = 200 % Recommended value 300.
+
+   % What percent of spellpower should we take in order to
+   % give the player a chance to completely resist a blinding spell?
+   piResistPercent = 5
 
 messages:
 
@@ -127,7 +137,7 @@ messages:
       oEagleEyesStrength = Send(oTarget,@GetEnchantedState,#what=self);
 
       % Give players a decent chance to improve the spell!
-      for i in Send(oTarget,@GetPassiveImprovementList)
+      foreach i in Send(oTarget,@GetPassiveImprovementList)
       {
          if First(i) = self AND random(1,3) = 3
          {
@@ -137,7 +147,7 @@ messages:
 
       % Check if they repel the blinding spell outright 1-10% base chance,
       % modified by factor.
-      iChance = (oEagleEyesStrength * (SPELL_RESIST_PERCENT * iFactor)) / 100;
+      iChance = (oEagleEyesStrength * (piResistPercent * iFactor)) / 100;
       if Random(0,100) <= iChance
       {
          Send(oTarget,@MsgSendUser,#message_rsc=EagleEyes_evade);
@@ -150,7 +160,8 @@ messages:
       }
 
       % Duration reduced 0-50%, depending on spellpower.
-      iNewDuration = iDuration - (iDuration * oEagleEyesStrength)/200;
+      iNewDuration = iDuration - (iDuration * oEagleEyesStrength)
+                        / piReductionFactor;
       Post(oTarget,@MsgSendUser,#message_rsc=EagleEyes_resist);
       
       if IsClass(oCaster,&Player)
@@ -197,14 +208,14 @@ messages:
 
    EffectDesc(who=$)
    {
-      AppendTempString("\n\n");
-      AppendTempString("Your current ");
-      AppendTempString(Send(self,@GetName));
-      AppendTempString(" enchantment adds ");
-      AppendTempString(Send(who,@GetEnchantedState,#what=self));
-      AppendTempString(" offense and 1 damage to your ranged attacks.");
+      local iState;
 
-      propagate;
+      iState = Send(who,@GetEnchantedState,#what=self);
+
+      AddPacket(4,eagleeyes_enchantment_rsc, 4,Send(self,@GetName),
+                4,iState, 4,iState * piResistPercent / 100,
+                4,100 * iState / piReductionFactor);
+      return;
    }
 
 end

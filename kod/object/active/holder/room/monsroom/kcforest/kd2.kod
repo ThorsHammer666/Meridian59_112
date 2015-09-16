@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include kd2.lkod
+
    room_name_OutdoorsKD2 = "Territory of the Noble Avars"
    room_OutdoorsKD2 = KD2.roo
    OutdoorsKD2_music = boneprst.mp3
@@ -39,13 +41,13 @@ properties:
 
    piDirectional_percent = DIRECTIONAL_PERCENT_OUTDOORS
 
-   piGen_time = 90000
+   piGen_time = 25000
    piGen_percent = 70
 
    piInit_count_min = 5
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
    pbSnowGroundTexture = TRUE
 

@@ -19,6 +19,8 @@ constants:
 
 resources:
 
+   include barlsew.lkod
+
    room_name_barlsew = "The Sewers of Barloque"
    room_barlsew = barlsew.roo
    barlsew_music = cave.mp3
@@ -44,7 +46,7 @@ properties:
 
    prMusic = barlsew_music
 
-   piGen_time = 60000
+   piGen_time = 30000
    piGen_percent = 80
 
    piInit_count_min = 4

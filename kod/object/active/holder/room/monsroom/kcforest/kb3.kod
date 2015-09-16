@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include kb3.lkod
+
    room_name_OutdoorsKB3 = "Camp of the Warrior Avars"
    room_OutdoorsKB3 = KB3.roo
    OutdoorsKB3_music = avarwar.mp3
@@ -42,13 +44,13 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 90000
+   piGen_time = 25000
    piGen_percent = 70
 
    piInit_count_min = 5
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
 messages:
 

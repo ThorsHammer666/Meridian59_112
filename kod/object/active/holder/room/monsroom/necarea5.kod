@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include necarea5.lkod
+
    room_name_Necropolis5 = "Ruins of Castle Brax"
    room_Necropolis5 = necarea5.roo
    Necropolis5_music = nec02.mp3
@@ -45,7 +47,7 @@ properties:
    piBaseLight = LIGHT_MIN
    piOutside_factor = 0
 
-   piGen_time = 40000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 7

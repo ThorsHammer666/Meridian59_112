@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include enfeeble.lkod
+
    enfeeble_cast_rsc = "You sense an unsavory presence."
    enfeeble_already_enchanted = "That poor soul is already enfeebled."
    palsy_start = "Your muscles turn to water."
@@ -118,6 +120,14 @@ messages:
    {
       if IsClass(who,&Player)
       {
+         % Handle transition from 3-element enchantment list elements to
+         % 4-element ones.
+         if state = $
+            OR state = 0
+         {
+            state = Send(who,@GetRawState,#what=self);
+         }
+
          Send(who,@AddMight,#points=First(state));
          if report
          {

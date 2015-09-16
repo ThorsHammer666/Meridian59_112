@@ -135,6 +135,7 @@ config_table_type config_table[] =
 
 { RESOURCE_GROUP,         F, "[Resource]",    CONFIG_GROUP, "" },
 { RESOURCE_RSC_SPEC,      F, "RscSpec",       CONFIG_STR,   "*.rsc" },
+{ RESOURCE_LANGUAGE,      T, "Language",      CONFIG_INT,   "0" },
 
 { MEMORY_GROUP,           F, "[Memory]",      CONFIG_GROUP, "" },
 { MEMORY_SIZE_CLASS_HASH, F, "SizeClassHash", CONFIG_INT,   "99971" },
@@ -190,9 +191,9 @@ config_table_type config_table[] =
    
 { ADVERTISE_GROUP,        F, "[Advertise]",   CONFIG_GROUP, "" },
 { ADVERTISE_FILE1,        T, "File1",         CONFIG_STR,   "ad1.avi" },
-{ ADVERTISE_URL1,         T, "Url1",          CONFIG_STR,   "http://www.neardeathstudios.com" },
+{ ADVERTISE_URL1,         T, "Url1",          CONFIG_STR,   "http://openmeridian.org" },
 { ADVERTISE_FILE2,        T, "File2",         CONFIG_STR,   "ad2.avi" },
-{ ADVERTISE_URL2,         T, "Url2",          CONFIG_STR,   "http://meridian59.neardeathstudios.com" },
+{ ADVERTISE_URL2,         T, "Url2",          CONFIG_STR,   "http://openmeridian.org/forums" },
 
 { DEBUG_GROUP,            F, "[Debug]",       CONFIG_GROUP, "" },
 { DEBUG_CANMOVEINROOM,    T, "CanMoveInRoom", CONFIG_BOOL,  "No" },
@@ -203,6 +204,7 @@ config_table_type config_table[] =
 { DEBUG_INITPROPERTIES,   T, "InitProperties",CONFIG_BOOL,  "No" },
 { DEBUG_INITLOCALS,       T, "InitLocals",    CONFIG_BOOL,  "No" },
 { DEBUG_UNINITIALIZED,    T, "Uninitialized", CONFIG_BOOL,  "No" },
+{ DEBUG_TIME_CALLS,       T, "TimeCalls",     CONFIG_BOOL,  "No" },
 
 { SECURITY_GROUP,         F, "[Security]",    CONFIG_GROUP, "" },
 { SECURITY_LOG_SPOOFS,    T, "LogSpoofs",     CONFIG_BOOL,  "Yes" }, 
@@ -225,7 +227,6 @@ config_table_type config_table[] =
 { MYSQL_DB,               F, "Database",      CONFIG_STR,   "meridian" },
 
 { BLAKOD_GROUP,           F, "[Blakod]",      CONFIG_GROUP, "" },
-{ BLAKOD_MAX_STATEMENTS,  T, "MaxStatements", CONFIG_INT,   "20000000" },
 
 };
 

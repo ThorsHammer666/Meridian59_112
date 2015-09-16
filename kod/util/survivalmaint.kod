@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include survivalmaint.lkod
+
    public_survival_started = \
       "%s has started a public co-op survival arena. It will begin in "
       "three minutes."
@@ -76,7 +78,7 @@ messages:
    }
    
    CreateRoom(who=$,guild_survival=FALSE,iPublic=FALSE,sString=$,
-              lSurvivalOptions=$,poForceBaseRoom=$)
+              lSurvivalOptions=$,oForceBaseRoom=$)
    {
       local poRoom, poBaseRoom, plAllRooms, iRID, i, plPlayersLoggedOn, z,
             plExcludedRoomsObjs, iNatural, iPvP, o;
@@ -102,7 +104,7 @@ messages:
       
       iNatural = TRUE;
       iPvP = FALSE;
-      for o in lSurvivalOptions
+      foreach o in lSurvivalOptions
       {
          if o = OPT_NATURAL
          {
@@ -122,11 +124,11 @@ messages:
       % for the survival room.
       if sString <> $
       {
-         for i in plAllRooms
+         foreach i in plAllRooms
          {
             if StringContain(sString,Send(i,@GetName))
             {
-               poForceBaseRoom = i;
+               oForceBaseRoom = i;
 
                break;
             }
@@ -134,7 +136,7 @@ messages:
       }
 
       plExcludedRoomsObjs = $;
-      for z in plExcludedRoomsList
+      foreach z in plExcludedRoomsList
       {
          plExcludedRoomsObjs = Cons(Send(SYS,@FindRoomByNum,#num=z),
                                     plExcludedRoomsObjs);
@@ -144,10 +146,10 @@ messages:
       % rooms.  Set poBaseRoom to the chosen room so it can be checked
       % in the following code.
       if NOT IsClass(who,&DM)
-         AND poForceBaseRoom <> $
+         AND oForceBaseRoom <> $
       {
-         poBaseRoom = poForceBaseRoom;
-         poForceBaseRoom = $;
+         poBaseRoom = oForceBaseRoom;
+         oForceBaseRoom = $;
       }
       else
       {
@@ -179,9 +181,9 @@ messages:
 
       % If we still have a forced base room, it was given by a DM.
       % Set the base room to the forced one.
-      if poForceBaseRoom <> $
+      if oForceBaseRoom <> $
       {
-         poBaseRoom = poForceBaseRoom;
+         poBaseRoom = oForceBaseRoom;
       }
 
       iRID = Send(self,@GetNextAvailableRID);
@@ -220,7 +222,7 @@ messages:
          {
             plPlayersLoggedOn = Send(SYS,@GetUsersLoggedOn);
          
-            for i in plPlayersLoggedOn
+            foreach i in plPlayersLoggedOn
             {
                Send(i,@MsgSendUser,#message_rsc=public_survival_started,
                                    #parm1=Send(who,@GetTrueName));
@@ -245,7 +247,7 @@ messages:
       while iRID <= RID_SURVIVAL_END
       {
          bExists = FALSE;
-         for i in plSurvivalRooms
+         foreach i in plSurvivalRooms
          {
             if Send(i,@GetRoomNum) = iRID
             {
@@ -268,7 +270,7 @@ messages:
    {
       local i;
       
-      for i in plSurvivalRooms
+      foreach i in plSurvivalRooms
       {
          if Send(i,@GetGuildAssociation) = oGuild
             AND Send(i,@GetAllowJoins)
@@ -284,7 +286,7 @@ messages:
    {
       local i;
       
-      for i in plSurvivalRooms
+      foreach i in plSurvivalRooms
       {
          if Send(i,@GetPublicStatus) = TRUE
             AND Send(i,@GetAllowJoins)
@@ -306,7 +308,7 @@ messages:
          if Send(what,@GetPublicStatus)
          {
             plUsers = Send(SYS,@GetUsersLoggedOn);
-            for i in plUsers
+            foreach i in plUsers
             {
                Send(i,@MsgSendUser,#message_rsc=public_ended,
                                    #parm1=Send(what,@GetLevel));
@@ -435,7 +437,7 @@ messages:
          return;
       }
 
-      for i in plSurvivalRooms
+      foreach i in plSurvivalRooms
       {
          if Send(i,@GetPublicStatus)
          {

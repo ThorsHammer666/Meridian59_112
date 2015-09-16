@@ -12,9 +12,11 @@ OutdoorsI7 is MonsterRoom
 
 constants:
 
-   include blakston.khd                                
+   include blakston.khd
 
 resources:
+
+   include i7.lkod
 
    room_OutdoorsI7 = I7.roo
    room_name_OutdoorsI7 ="The Twisted Wood"
@@ -45,7 +47,7 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 45000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 8

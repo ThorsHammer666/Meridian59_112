@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include jasab11.lkod
+
    room_jasperAB11 = jasab11.roo
    room_name_JasperAB11 = "Abandoned Counting Room"
 
@@ -46,6 +48,11 @@ messages:
       plExits = Cons([ 6, 2, RID_JASWEST, 52, 20, ROTATE_NONE ],plExits);
 
       propagate;
+   }
+
+   GetRegion()
+   {
+      return RID_HISTORIC;
    }
 
 end

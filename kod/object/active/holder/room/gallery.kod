@@ -17,6 +17,8 @@ constants:
 
 resources:
 
+   include gallery.lkod
+
    room_gallery = univ.roo
    room_name_gallery = "object gallery"
    gallery_music = main.mp3
@@ -107,6 +109,11 @@ messages:
    SeanceCheck()
    {
       return FALSE;
+   }
+   
+   GetRegion()
+   {
+      return RID_HISTORIC;
    }
 
 end

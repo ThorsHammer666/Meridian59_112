@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include jassew1.lkod
+
    room_name_jassew1 = "The Sewers of Jasper"
    room_jassew1 = jassew1.roo
    jassew1_music = cave.mp3
@@ -83,7 +85,7 @@ properties:
 
    prMusic = jassew1_music
 
-   piGen_time = 80000
+   piGen_time = 30000
    piGen_percent = 80
 
    piInit_count_min = 6

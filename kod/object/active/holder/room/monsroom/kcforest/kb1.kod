@@ -15,6 +15,8 @@ constants:
    include blakston.khd
 
 resources:
+
+   include kb1.lkod
    room_OutdoorsKB1 = KB1.roo
    room_name_OutdoorsKB1 = "The Cliffs"
    OutdoorsKB1_music = drgnfly.mp3
@@ -42,13 +44,13 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 90000
+   piGen_time = 25000
    piGen_percent = 70
 
    piInit_count_min = 5
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
 messages:
 

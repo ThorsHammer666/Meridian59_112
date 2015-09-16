@@ -37,7 +37,9 @@ constants:
    NEWS_POSTING_LIMIT = 2
    % how long can news messages be
    NEWS_POSTING_MAX_LENGTH = 4096
-   
+   % Max subject length client can handle.
+   NEWS_POSTING_MAX_SUBJECT_LENGTH = 50
+
    % how long a mail message may be (the client currently can;t handle > 4096)
    MAIL_MESSAGE_MAX_LENGTH = 4096
    
@@ -63,6 +65,8 @@ constants:
    MAX_LOGGED_THRESHOLD = 50
 
 resources:
+
+   include user.lkod
 
    user_name_rsc = "user name"
 
@@ -191,6 +195,12 @@ resources:
    user_group_stats = "Stats"
    user_group_spells = "Spells"
    user_group_skills = "Skills"
+   user_group_quests = "Quests"
+
+   user_active_quests_header = "Active Quests: "
+   user_no_active_quests_header = "No Active Quests"
+   user_completed_quests_header = "Completed Quests: "
+   user_no_completed_quests_header = "No Completed Quests"
 
    user_got_offer = "You have a trade offer from %s%s."
    user_cant_offer = "You can't offer to %s%s."
@@ -276,6 +286,11 @@ resources:
       "You can't kill yourself now, not when you're the sacred guardian of a "
       "Meridian token!"
 
+   user_cant_suicide_hp = \
+      "You've accomplished much so far in your time here, and you can't quite "
+      "stomach the thought of ending your journey now.  If you have a good "
+      "reason for suiciding, perhaps one of the Gods will assist you."
+
    user_cant_suicide_OOG = \
       "Somehow, even though you deserve it, you are unable to bear the "
       "thought of killing yourself now."
@@ -349,23 +364,64 @@ resources:
       "Your news posting privileges have been revoked."
    user_news_toobig = \
       "WHOA BUDDY!  Take a breath, that message was WAY too big!"
+   user_news_subject_toobig = \
+      "Your newsglobe subject length was too long."
 
    user_guild_rsc = "guild"
    user_guildofficer_rsc = "guildofficer"
 
    user_default_url = "http://openmeridian.org/"
-   
+
    user_safety_on_wav_rsc = safety_on.wav
    user_safety_off_wav_rsc = safety_off.wav
-   
+
+   % Guild MOTD user say commands.
+   user_say_guild_motd = "motd"
    guild_motd_command = "set motd "
    guild_clear_motd_command = "clear motd"
-   
-   autocombine_on_msg = "You decide to combine spell items as you get them."
-   autocombine_off_msg = "You decide to stop combining spell items as you get them."
+
+   % Autocombine user say commands.
+   user_say_autocombine = "autocombine"
+   user_say_autocombine_on = "autocombine on"
+   user_say_autocombine_off = "autocombine off"
+
+   autocombine_on_msg = \
+      "You decide to combine spell items as you get them."
+   autocombine_off_msg = \
+      "You decide to stop combining spell items as you get them."
+
+   % Autoloot user say commands.
+   user_say_autoloot = "autoloot"
+   user_say_autoloot_on = "autoloot on"
+   user_say_autoloot_off = "autoloot off"
 
    autoloot_on_msg = "You decide to pick up treasure as it drops."
    autoloot_off_msg = "You stop picking up treasure as it drops."
+
+   % Reagent bag user say commands.
+   user_say_reagentbag = "reagentbag"
+   user_say_reagentbag_on = "reagentbag on"
+   user_say_reagentbag_off = "reagentbag off"
+
+   % Inventory sorting user say commands.
+   user_say_inventory = "inventory"
+   user_say_inv_sort_clear = "inventory sort clear"
+   user_say_inv_sort_report = "inventory sort report"
+   user_say_inv_sort_add = "inventory sort add "
+   user_say_inv_sort_help = "inventory sort help"
+   user_say_inv_sort = "sort inventory"
+
+   % Survival arena user say commands.
+   user_say_survival = "survival"
+   user_say_start_solo_survival = "start solo survival"
+   user_say_start_pub_survival = "start public survival"
+   user_say_join_pub_survival = "join public survival"
+   user_say_start_guild_survival = "start guild survival"
+   user_say_join_guild_survival = "join guild survival"
+   % Extra survival arena options for DMs.
+   user_say_survival_opt_unnatural = "--unnatural"
+   user_say_survival_opt_pvpon = "--pvpon"
+   user_say_survival_opt_starthere = "--thisbase"
 
    guild_survival_too_late = \
       "Your guild is already running a survival room. You will have to wait."
@@ -387,7 +443,7 @@ resources:
       
    survival_err_cant_join = \
       "That survival arena has already begun, and you cannot join."
-   
+
    phased_out_cant_drop = "You can't drop items while phased out of existence."
                                
    reagentbag_auto_on = "You start putting new reagents in your bag."
@@ -453,6 +509,7 @@ properties:
    psURL = $
 
    plQuestHistory = $
+   plActiveQuests = $
 
    piLogoffPenaltyCount = 0
 
@@ -712,19 +769,28 @@ messages:
       
       return;
    }
-   
+
+   FirstLogon()
+   "Sets the last login time and sends an appeal "
+   "when a new character is created."
+   {
+      if piLastLoginTime = 0 AND piLast_Restart_Time = 0
+      {
+         Debug("Sending first time appeal");
+         Send(self,@SendFirstTimeAppeal);
+      }
+
+      piLastLoginTime = GetTime();
+
+      return;
+   }
+
    UserLogon(session_id = $)
    {
       local i;
       
       poSession = session_id;
       pbLogged_on = TRUE;
-
-      if piLastLoginTime = 0 AND piLast_Restart_Time = 0
-      {
-         Debug("Sending first time appeal");
-         Send(self,@SendFirstTimeAppeal);
-      }
 
       piLastLoginTime = GetTime();
       % Gotta load interface early!
@@ -742,7 +808,7 @@ messages:
       else
       {
          % We don't want to be seen, except by admins
-         for i in Send(SYS,@GetUsersLoggedOn)
+         foreach i in Send(SYS,@GetUsersLoggedOn)
          {
             % Only do this for admins
             if IsClass(i,&Admin)
@@ -895,7 +961,7 @@ messages:
       }
 
       % Check for phase out
-      for j in plEnchantments
+      foreach j in plEnchantments
       {
          if IsClass(Nth(j,2),&Phase)
          {
@@ -919,7 +985,7 @@ messages:
       else
       {
          % We've already faked our own logoff.  Don't advertise to non-admins.
-         for i in Send(SYS,@GetUsersLoggedOn)
+         foreach i in Send(SYS,@GetUsersLoggedOn)
          {
             % Only do this for admins
             if IsClass(i,&Admin)
@@ -1546,7 +1612,7 @@ messages:
             return;
          }
       
-         for i in client_msg
+         foreach i in client_msg
          {
             if i = $
             {
@@ -1598,6 +1664,8 @@ messages:
    "appropriate. This function will force a suicide and clean up anything, "
    "ignoring game rules."
    {
+      local sName;
+
       Send(self,@CancelIfOffer);
 
       if poGuild <> $
@@ -1616,11 +1684,18 @@ messages:
 
       if pbLogged_on
       {
-         addPacket(1,BP_USERCOMMAND,1,UC_SEND_QUIT);
+         AddPacket(1,BP_USERCOMMAND,1,UC_SEND_QUIT);
          SendPacket(poSession);
       }
 
+      % Change the name to a unique placeholder one.
+      ClearTempString();
+      AppendTempString("Suicide");
+      AppendTempString(GetTime());
+      AppendTempString(GetTickCount() MOD 1000);
+      sName = SetString($,GetTempString());
       Debug("Character",Send(self,@GetTrueName),self,"was suicided.");
+      Send(SYS,@ChangeUserName,#oUser=self,#sName=sName);
 
       Send(self,@ResetCharacter);
 
@@ -1662,21 +1737,28 @@ messages:
          {
             Send(self,@MsgSendUser,#message_rsc=user_cant_suicide_OOG);
             
-            return;            
+            return;
          }
          
-         if getTime() < piLast_restart_time + SUICIDE_REPEAT_TIME
+         if GetTime() < piLast_restart_time + SUICIDE_REPEAT_TIME
          {
             Send(self,@MsgSendUser,#message_rsc=user_cant_suicide_yet);
             
-            return;            
+            return;
          }
 
          if Send(self,@FindHolding,#class=&Token)
          {
             Send(self,@MsgSendUser,#message_rsc=user_cant_suicide_token);
             
-            return;                 
+            return;
+         }
+
+         if Send(Send(SYS,@GetSettings),@GetMaxSuicideHP) <= piBase_Max_health
+         {
+            Send(self,@MsgSendUser,#message_rsc=user_cant_suicide_hp);
+
+            return;
          }
 
          % Successful SUICIDE.
@@ -2159,7 +2241,7 @@ messages:
       AddPacket(4,poGuild);
 
       lRank_names = Send(poGuild,@GetRankNames);
-      for i in lRank_names
+      foreach i in lRank_names
       {
          AddPacket(STRING_RESOURCE,i);
       }
@@ -2168,7 +2250,7 @@ messages:
       lMembers = Send(poGuild,@GetMemberList);
 
       % Need to find ourself in here to get our vote
-      for i in lMembers
+      foreach i in lMembers
       {
          if First(i) = self
          {
@@ -2185,7 +2267,7 @@ messages:
       }
 
       AddPacket(2,Length(lMembers));
-      for i in lMembers
+      foreach i in lMembers
       {
          AddPacket(4,First(i));
          AddPacket(STRING_RESOURCE,Send(First(i),@GetTrueName));
@@ -2208,35 +2290,35 @@ messages:
          
          lGuilds = Send(SYS,@GetGuilds);
          AddPacket(2,Length(lGuilds));
-         for i in lGuilds
+         foreach i in lGuilds
          {
             AddPacket(4,i,6,Send(i,@GetName));
          }
          
          lGuilds = Send(poGuild,@GetAllyList);
          AddPacket(2,Length(lGuilds));
-         for i in lGuilds
+         foreach i in lGuilds
          {
             AddPacket(4,i);
          }
          
          lGuilds = Send(poGuild,@GetEnemyList);
          AddPacket(2,Length(lGuilds));
-         for i in lGuilds
+         foreach i in lGuilds
          {
             AddPacket(4,i);
          }
          
          lGuilds = Send(poGuild,@GetDeclaredAllyList);
          AddPacket(2,Length(lGuilds));
-         for i in lGuilds
+         foreach i in lGuilds
          {
             AddPacket(4,i);
          }
 
          lGuilds = Send(poGuild,@GetDeclaredEnemyList);
          AddPacket(2,Length(lGuilds));
-         for i in lGuilds
+         foreach i in lGuilds
          {
             AddPacket(4,i);
          }
@@ -2260,7 +2342,7 @@ messages:
 
             lSamples = Send(SYS,@GetGuildShieldSamples);
             AddPacket(2,length(lSamples));
-            for i in lSamples
+            foreach i in lSamples
             {
                AddPacket(4,i);
             }
@@ -2326,7 +2408,7 @@ messages:
       Send(self,@CancelIfOffer);
 
       Send(self,@SysMsgSendUser,#message_rsc=user_garbage_collecting);
-      Send(self, @WaveSendUser, #what = self, #wave_rsc = user_saving_wav_rsc);
+      Send(self,@WaveSendUser,#what=self,#wave_rsc=user_saving_wav_rsc);
 
       AddPacket(1,BP_WAIT);
       SendPacket(poSession);
@@ -2395,7 +2477,7 @@ messages:
    {
       local i;
       
-      for i in Send(SYS,@GetBackgroundObjects)
+      foreach i in Send(SYS,@GetBackgroundObjects)
       {
          Send(i,@AddBackgroundObject,#who=self);
       }
@@ -2589,8 +2671,6 @@ messages:
       {
          Send(what,@SendInventoryAnimation);
          Send(what,@SendInventoryOverlays);
-         Post(self,@DrawCapacity);
-         Post(self,@DrawBulk);
       }
 
       if show_type = SHOW_NORMAL
@@ -2627,7 +2707,8 @@ messages:
          OR IsClass(what,&EvilTwin)
       {
          what = Send(what,@GetMaster);
-         if what = self
+         if what = $
+            OR what = self
          {
             return MM_PLAYER;
          }
@@ -2798,7 +2879,7 @@ messages:
       Send(poOwner,@SendSectorLightChanges,#who=self);
       Send(poOwner,@SendWallChanges,#who=self);
       Send(poOwner,@SendTextureChanges,#who=self);
-
+      Send(self,@SendUserAllWindowOverlays);
       % Check weather here also.
       Send(self,@WeatherChanged);
 
@@ -2827,7 +2908,7 @@ messages:
 
       lUsers = $;
 
-      for i in Send(SYS,@GetUsersLoggedOn)
+      foreach i in Send(SYS,@GetUsersLoggedOn)
       {
          if IsClass(self,&Admin)
             OR NOT (IsClass(i,&DM)
@@ -2838,7 +2919,7 @@ messages:
       }
 
       AddPacket(1,BP_PLAYERS,2,Length(lUsers));
-      for i in lUsers
+      foreach i in lUsers
       {
          rName = Send(i,@GetTrueName);
 
@@ -2868,7 +2949,7 @@ messages:
       objs = Length(Send(poOwner,@GetHolderPassive));
 
       % We might not include all passive.
-      for i in Send(poOwner,@GetHolderActive)
+      foreach i in Send(poOwner,@GetHolderActive)
       {
          oThing = Send(poOwner,@HolderExtractObject,#data=i);
 
@@ -2885,7 +2966,7 @@ messages:
 
       AddPacket(1,BP_ROOM_CONTENTS, 4,poOwner, 2,objs);
       
-      for i in Send(poOwner,@GetHolderActive)
+      foreach i in Send(poOwner,@GetHolderActive)
       {
          oThing = Send(poOwner,@HolderExtractObject,#data=i);
 
@@ -2904,7 +2985,7 @@ messages:
          Send(oThing,@SendMoveOverlays);
       }
       
-      for i in Send(poOwner,@GetHolderPassive)
+      foreach i in Send(poOwner,@GetHolderPassive)
       {
          oThing = Send(poOwner,@HolderExtractObject,#data=i);
          Send(self,@ToCliObject,#what=oThing);
@@ -2930,7 +3011,7 @@ messages:
 
       AddPacket(1,BP_INVENTORY, 2,Length(plActive)+Length(plPassive));
 
-      for i in plActive
+      foreach i in plActive
       {
         Send(self,@ToCliObject,#what=i,#show_type=SHOW_INVENTORY);
       }
@@ -2954,7 +3035,7 @@ messages:
 
       AddPacket(1,BP_USE_LIST, 2,Length(plUsing));
 
-      for i in plUsing
+      foreach i in plUsing
       {
          AddPacket(4,i);
       }
@@ -2966,9 +3047,9 @@ messages:
 
    ToCliStats(group = $)
    {
-      local i,oSpell,oSkill,iCount,lCurrentResistances;
+      local i, oSpell, oSkill, iCount, lCurrentResistances, iQLength;
 
-      if not pbLogged_on
+      if NOT pbLogged_on
       {
          return;
       }
@@ -2979,9 +3060,9 @@ messages:
          Send(self,@SendStatHealth);
          Send(self,@SendStatMana);
          Send(self,@SendStatVigor);
-		 Send(self,@SendStatHPChance);
+         Send(self,@SendStatHPChance);
          SendPacket(poSession);
-         
+
          return;
       }
 
@@ -3021,7 +3102,7 @@ messages:
       {
          AddPacket(1,BP_STAT_GROUP, 1,group,1, Length(plSpells));
          iCount = 1;
-         for i in plSpells
+         foreach i in plSpells
          {
             Send(self,@SendStatSpell,#index=iCount);
             iCount = iCount + 1;
@@ -3036,7 +3117,7 @@ messages:
       {
          AddPacket(1,BP_STAT_GROUP, 1,group, 1,Length(plSkills));
          iCount = 1;
-         for i in plSkills
+         foreach i in plSkills
          {
             Send(self,@SendStatSkill,#index=iCount);
             iCount = iCount + 1;
@@ -3047,20 +3128,172 @@ messages:
          return;
       }
 
+      if group = 5
+      {
+         % Used for determining index in displayed quests.
+         iCount = 1;
+         % Need to know how many completed quests in quest history.
+         iQLength = Send(self,@GetCompletedQuestLength);
+         AddPacket(1,BP_STAT_GROUP, 1,group, 1,Length(plActiveQuests) + iQLength + 2);
+
+         % Send active quests.
+         if plActiveQuests <> $
+         {
+            % Send the "Active Quests" header.
+            AddPacket(1,0, 4,user_active_quests_header,
+                      1,STAT_LIST, 4,0, 4,0, 4,0);
+            % Followed by all the active quests.
+            iCount = Send(self,@SendActiveQuestData,#iCount=iCount);
+         }
+         else
+         {
+            % Send the "No Active Quests" header.
+            AddPacket(1,0, 4,user_no_active_quests_header,
+                      1,STAT_LIST, 4,0, 4,0, 4,0);
+         }
+
+         % Increment count past any active quests.
+         iCount = iCount + 1;
+         % Send completed quests.
+         if plQuestHistory <> $
+         {
+            % Send the "Completed Quests" header.
+            AddPacket(1,iCount, 4,user_completed_quests_header,
+                      1,STAT_LIST, 4,0, 4,0, 4,0);
+            % Followed by completed quests.
+            Send(self,@SendCompletedQuestData,#iCount=iCount);
+         }
+         else
+         {
+            % Send the "No Completed Quests" header.
+            AddPacket(1,iCount, 4,user_no_completed_quests_header,
+                      1,STAT_LIST, 4,0, 4,0, 4,0);
+         }
+
+         SendPacket(poSession);
+
+         return;
+      }
+
       Debug("Invalid stat group number",group,"sent by client");
 
       return;
    }
 
+   GetCompletedQuestLength()
+   {
+      local i, iCount, iQTemplate, oQObj, oQE;
+
+      iCount = 0;
+
+      oQE = Send(SYS,@GetQuestEngine);
+      foreach i in plQuestHistory
+      {
+         if First(i) & QUEST_HISTORY_SUCCESS
+         {
+            iQTemplate = (First(i) & QUEST_HISTORY_MASK);
+            oQObj = Send(oQE,@GetQuestTemplateObject,#index=iQTemplate);
+
+            if oQObj = $
+            {
+               continue;
+            }
+
+            if Send(oQObj,@ShowCompletedQuest,#who=self,#lHistory=i)
+            {
+               iCount = iCount + 1;
+            }
+         }
+      }
+
+      return iCount;
+   }
+
+   SendActiveQuestData(iCount=1)
+   "Returns the current index count."
+   {
+      local i, iQTemplate, oQE, oQObj, rQuestName;
+
+      oQE = Send(SYS,@GetQuestEngine);
+
+      foreach i in plActiveQuests
+      {
+         iQTemplate = First(i);
+         oQObj = Send(oQE,@GetQuestTemplateObject,#index=iQTemplate);
+
+         if oQObj = $
+         {
+            Debug("User ",Send(self,@GetTrueName),"couldn't get quest object for ",
+                  "quest template ",iQTemplate," quest is active.");
+
+            continue;
+         }
+
+         rQuestName = Send(oQObj,@GetName);
+
+         % List index, quest name, statistic type, quest object, value (%), icon.
+         AddPacket(1,iCount, 4,rQuestName, 1,STAT_LIST,
+                   4,oQObj, 4,iQTemplate, 4,Send(oQObj,@GetIcon));
+         iCount = iCount + 1;
+      }
+
+      % Need to return the current count.
+      return iCount;
+   }
+
+   SendCompletedQuestData(iCount=1)
+   "Returns the current index count."
+   {
+      local i, iQTemplate, oQE, oQObj, rQuestName;
+
+      oQE = Send(SYS,@GetQuestEngine);
+
+      foreach i in plQuestHistory
+      {
+         % Only send successfully completed quests for now.
+         if NOT (First(i) & QUEST_HISTORY_SUCCESS)
+         {
+            continue;
+         }
+
+         iQTemplate = (First(i) & QUEST_HISTORY_MASK);
+         oQObj = Send(oQE,@GetQuestTemplateObject,#index=iQTemplate);
+
+         if oQObj = $
+         {
+            Debug("User ",Send(self,@GetTrueName),"couldn't get quest object for ",
+                  "quest template ",iQTemplate," quest is completed.");
+
+            continue;
+         }
+
+         if NOT Send(oQObj,@ShowCompletedQuest,#who=self,#lHistory=i)
+         {
+            continue;
+         }
+
+         rQuestName = Send(oQObj,@GetName);
+
+         % List index, quest name, statistic type, quest object, value (%), icon.
+         AddPacket(1,iCount, 4,rQuestName, 1,STAT_LIST,
+                   4,oQObj, 4,iQTemplate, 4,Send(oQObj,@GetIcon));
+         iCount = iCount + 1;
+      }
+
+      % Don't currently use the returned count, but we might one day.
+      return iCount;
+   }
+
    ToCliStatGroups()
    {
       AddPacket(1,BP_STAT_GROUPS);
-      % 4 stat groups
-      AddPacket(1,4); 
+      % 5 stat groups
+      AddPacket(1,5);
       AddPacket(4,user_group_condition);
       AddPacket(4,user_group_stats);
       AddPacket(4,user_group_spells);
       AddPacket(4,user_group_skills);
+      AddPacket(4,user_group_quests);
       SendPacket(poSession);
 
       return;
@@ -3101,7 +3334,7 @@ messages:
 
       AddPacket(1,BP_SPELLS, 2,Length(plSpells));
 
-      for i in plSpells
+      foreach i in plSpells
       {
          oSpell = Send(SYS,@FindSpellByNum,#num=Send(self,@DecodeSpellNum,
                                                      #compound=i));
@@ -3121,7 +3354,7 @@ messages:
       local i,oSkill;
 
       AddPacket(1, BP_SKILLS,2,Length(plSkills));
-      for i in plSkills
+      foreach i in plSkills
       {
          oSkill = Send(SYS,@FindSkillByNum,#num=Send(self,@DecodeSkillNum,
                                                      #compound=i));
@@ -3237,10 +3470,11 @@ messages:
       iAngle = Send(self,@GetAngle);
 
       %
-      % 2. Do not allow any moves if player is marked as not allowed to move
+      % 2. Do not allow any moves if player is marked as not allowed to move or 
+      %    if destination is outside of the map. (return of MIN_KOD_INT = outside) 
       %
-
-      if (piFlags & PFLAG_NO_MOVE)
+      if (piFlags & PFLAG_NO_MOVE) OR
+          MIN_KOD_INT = GetHeightFloorBSP(Send(poOwner,@GetRoomData),new_row,new_col,fine_row,fine_col)
       {
          % Reset position
          Send(SYS,@UtilGoNearSquare,#what=self,#where=poOwner,
@@ -3276,7 +3510,7 @@ messages:
       %   USER_RUNNING_SPEED is defined as # of big squares per 10000ms
       %   The unit here is fine upscaled by another *16 (same is done below in 4.5)
       %
-      iMaxMoveRun = (Bound(speed,0,50) * FINENESS * 16 * iDelta) / 10000;
+      iMaxMoveRun = (Bound(speed,0,USER_RUNNING_SPEED) * FINENESS * 16 * iDelta) / 10000;
       iMaxMoveRun = (iMaxMoveRun * iMaxMoveRun);
 
       %
@@ -3555,7 +3789,7 @@ messages:
       local i, lUsers;
 
       lUsers = Send(SYS,@GetUsersLoggedOn);
-      for i in lUsers
+      foreach i in lUsers
       {
          if IsClass(i,&DM) AND Send(i,@IsAppealOn)
          {
@@ -3581,6 +3815,35 @@ messages:
 
       Send(self,@MsgSendUser,#message_rsc=user_did_appeal,#parm1=string);
       
+      return;
+   }
+
+   MsgSendUserCallback(what=$, sCallback=$, parm1=$, parm2=$, parm3=$, parm4=$)
+   "Adds a BP_MESSAGE packet, calls the message in sCallback, then sends the "
+   "packet to the user.  Used so other objects don't need to add the protocol "
+   "message, or obtain the user's session.  sCallback is a string containing "
+   "the message name to be called, 'what' is the calling object."
+   {
+      if sCallback <> $
+         AND IsString(sCallback)
+         AND what <> $
+         AND pbLogged_on
+      {
+         AddPacket(1,BP_MESSAGE);
+
+         % The called message should return TRUE to let us know building the
+         % packet was successful, otherwise we clear the packet.
+         if Send(what,sCallBack,#parm1=parm1,#parm2=parm2,
+                  #parm3=parm3,#parm4=parm4)
+         {
+            SendPacket(poSession);
+         }
+         else
+         {
+            ClearPacket();
+         }
+      }
+
       return;
    }
 
@@ -4457,14 +4720,14 @@ messages:
       iObjs = Length(lHolding1) + Length(lHolding2);
       AddPacket(1,BP_OBJECT_CONTENTS,4,what,2,iObjs);
 
-      for i in lHolding1
+      foreach i in lHolding1
       {
          oThing = Send(what,@HolderExtractObject,#data=i);
          Send(self,@ToCliObject,#what=oThing);
       }
       
       % passive are in lholding2
-      for i in lHolding2
+      foreach i in lHolding2
       {
          oThing = Send(what,@HolderExtractObject,#data=i);
          Send(self,@ToCliObject,#what=oThing);
@@ -4477,8 +4740,7 @@ messages:
 
    UserSay(type=$,string=$)
    {
-      local i, oSpell, lEnchantData, bTranceBlocksSay, lSurvivalOptions,
-            poForceBaseRoom, lSortInfo, oTemplateItem, n, bFound;
+      local i, oSpell, lEnchantData, bTranceBlocksSay;
 
       % A room can completely block a piece of communication if it chooses.
       % An excellent example is Out Of Grace, which blocks all tells to 
@@ -4493,337 +4755,50 @@ messages:
 
       if type = SAY_NORMAL
       {
-         if StringContain(String,"start solo survival")
+         if StringContain(string,user_say_survival)
+            AND Send(poOwner,@GetRoomNum) <> RID_OUTOFGRACE
          {
-            lSurvivalOptions = $;
-            if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
-               OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
-               OR Send(poOwner,@GetRoomNum) = RID_FIELD1
+            % If UserSaySurvival handles the string, don't keep checking.
+            if Send(self,@UserSaySurvival,#string=string)
             {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
-
                return;
             }
-
-            Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,#who=self);
-
-            return;
          }
 
-         if StringContain(String,"start guild survival")
+         if StringContain(string,user_say_inventory)
          {
-            lSurvivalOptions = $;
-            if poGuild = $
+            % If UserSayInventory handles the string, don't keep checking.
+            if Send(self,@UserSayInventory,#string=string)
             {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_no_guild);
-
                return;
             }
+         }
 
-            if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
-               OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
-               OR Send(poOwner,@GetRoomNum) = RID_FIELD1
+         if StringContain(string,user_say_autocombine)
+         {
+            % If UserSayAutocombine handles the string, don't keep checking.
+            if Send(self,@UserSayAutocombine,#string=string)
             {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
-
                return;
             }
-
-            if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindRoomByGuild,
-                     #oGuild=poGuild) = $
-            {
-               Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,
-                     #who=self,#guild_survival=TRUE);
-            }
-            else
-            {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_already_guild);
-            }
-
-            return;
          }
 
-         if StringContain(String,"start public survival")
+         if StringContain(string,user_say_autoloot)
          {
-            lSurvivalOptions = $;
-            if (NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
-               OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
-               OR Send(poOwner,@GetRoomNum) = RID_FIELD1)
-               AND NOT IsClass(self,&Admin)
+            % If UserSayAutoloot handles the string, don't keep checking.
+            if Send(self,@UserSayAutoloot,#string=string)
             {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
-
                return;
             }
-
-            poForceBaseRoom = $;
-            if IsClass(self,&DM)
-            {
-               if StringContain(String,"--unnatural")
-               {
-                  lSurvivalOptions = Cons(OPT_NATURAL,lSurvivalOptions);
-               }
-               if StringContain(String,"--pvpon")
-               {
-                  lSurvivalOptions = Cons(OPT_PVP_ON,lSurvivalOptions);
-               }
-               if StringContain(String,"--thisbase")
-               {
-                  poForceBaseRoom = poOwner;
-               }
-            }
-
-            if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindPublicRoom) = $
-            {
-               Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,
-                     #who=self,#iPublic=TRUE,#sString=string,
-                     #lSurvivalOptions=lSurvivalOptions,
-                     #poForceBaseRoom=poForceBaseRoom);
-            }
-            
-            if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindPublicRoom) = $
-            {
-               Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,
-                     #who=self,#iPublic=TRUE,
-                     #lSurvivalOptions=lSurvivalOptions,
-                     #poForceBaseRoom=poForceBaseRoom);
-            }
-            else
-            {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_already_public);
-            }
-
-            return;
          }
 
-         if StringEqual(String,"join guild survival")
+         if StringContain(string,user_say_reagentbag)
          {
-            if poGuild = $
+            % If UserSayReagentBag handles the string, don't keep checking.
+            if Send(self,@UserSayReagentBag,#string=string)
             {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_no_guild);
-
                return;
             }
-
-            if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
-               OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
-               OR Send(poOwner,@GetRoomNum) = RID_FIELD1
-            {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
-
-               return;
-            }
-
-            if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindRoomByGuild,
-                     #oGuild=poGuild) = $
-            {
-               Send(self,@MsgSendUser,#message_rsc=survival_no_guild_rooms);
-
-               return;
-            }
-
-            if Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
-                     @FindRoomByGuild,#oGuild=poGuild),@GetAllowJoins)
-            {
-               Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
-                     @FindRoomByGuild,#oGuild=poGuild),@Teleport,#what=self);
-            }
-            else
-            {
-               Send(self,@MsgSendUser,#message_rsc=guild_survival_too_late);
-            }
-
-            return;
-         }
-
-         if StringEqual(String,"inventory sort clear")
-         {
-            plClassOrderPreferences = $;
-            Send(self,@MsgSendUser,#message_rsc=inventory_sort_cleared);
-            return;
-         }
-
-         if StringEqual(String,"inventory sort report")
-         {
-            Send(self,@MsgSendUser,#message_rsc=inventory_sort_report_header);
-
-            lSortInfo = Send(SYS,@GetSortInfo);
-
-            for i in plClassOrderPreferences
-            {
-               bFound = FALSE;
-               for n in lSortInfo
-               {
-                  if Nth(n,2) = i
-                  {
-                     Send(self,@MsgSendUser,#message_rsc=inventory_sort_report,
-                                      #parm1=Nth(n,1));
-                     bFound = TRUE;
-                     break;
-                  }
-               }
-               
-               if bFound
-               {
-                  continue;
-               }
-               
-               oTemplateItem = Send(SYS,@FindTemplateItemByClass,
-                                        #cClass=i);
-               
-               if oTemplateItem <> $
-               {
-                  Send(self,@MsgSendUser,#message_rsc=inventory_sort_report,
-                                      #parm1=Send(oTemplateItem,@GetName));
-               }
-            }
-            
-            return;
-         }
-
-         if StringContain(String,"inventory sort add ")
-         {
-            StringSubstitute(String,"inventory sort add ","");
-            
-            lSortInfo = Send(SYS,@GetSortInfo);
-            
-            for i in lSortInfo
-            {
-               if StringEqual(String,First(i))
-               {
-                  if plClassOrderPreferences <> $
-                     AND FindListElem(plClassOrderPreferences,Nth(i,2)) <> 0
-                  {
-                     Send(self,@MsgSendUser,
-                               #message_rsc=inventory_already_in_list);
-                     return;
-                  }
-                  
-                  plClassOrderPreferences =
-                          AppendListElem(Nth(i,2),plClassOrderPreferences);
-                          
-                  Send(self,@MsgSendUser,#message_rsc=inventory_class_added,
-                                         #parm1=Nth(i,1));
-                  return;
-               }
-            }
-            
-            oTemplateItem = Send(SYS,@FindTemplateItemByName,#string=String);
-            
-            if oTemplateItem <> $
-            {
-               plClassOrderPreferences =
-                   AppendListElem(GetClass(oTemplateItem),
-                                  plClassOrderPreferences);
-               Send(self,@MsgSendUser,#message_rsc=inventory_class_added,
-                                      #parm1=Send(oTemplateItem,@GetName));
-               return;
-            }
-            
-            Send(self,@MsgSendUser,#message_rsc=inventory_sort_no_item);
-            
-            return;
-         }
-
-         if StringEqual(String,"inventory sort help")
-         {
-            Send(self,@MsgSendUser,#message_rsc=inventory_sort_help);
-            return;
-         }
-
-         if StringEqual(String,"sort inventory")
-         {
-            plPassive = Send(SYS,@SortItemsByType,#lItems=plPassive,
-                                 #lClassOrder=plClassOrderPreferences);
-            Send(self,@ToCliInventory);
-            Send(self,@ToCliUseList);
-            return;
-         }
-
-         if StringEqual(String,"join public survival")
-         {
-            if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
-               OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
-               OR Send(poOwner,@GetRoomNum) = RID_FIELD1
-            {
-               Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
-
-               return;
-            }
-            
-            if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindPublicRoom) = $
-            {
-               Send(self,@MsgSendUser,#message_rsc=survival_no_public_rooms);
-
-               return;
-            }
-
-            if Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
-                     @FindPublicRoom),@GetAllowJoins)
-            {
-               Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
-                     @FindPublicRoom),@Teleport,#what=self);
-            }
-            else
-            {
-               Send(self,@MsgSendUser,#message_rsc=public_survival_too_late);
-            }
-
-            return;
-         }
-
-         if StringContain(String,"autocombine on")
-            AND NOT Send(self,@IsAutoCombining)
-         {
-            Send(self,@SetAutoCombine,#value=TRUE);
-            Send(self,@MsgSendUser,#message_rsc=autocombine_on_msg);
-
-            return;
-         }
-
-         if StringContain(String,"autocombine off")
-            AND Send(self,@IsAutoCombining)
-         {
-            Send(self,@SetAutoCombine,#value=FALSE);
-            Send(self,@MsgSendUser,#message_rsc=autocombine_off_msg);
-
-            return;
-         }
-
-         if StringContain(String,"autoloot on")
-            AND NOT Send(self,@IsAutolooting)
-         {
-            Send(self,@SetAutoloot,#value=TRUE);
-            Send(self,@MsgSendUser,#message_rsc=autoloot_on_msg);
-
-            return;
-         }
-
-         if StringContain(String,"autoloot off")
-            AND Send(self,@IsAutolooting)
-         {
-            Send(self,@SetAutoloot,#value=FALSE);
-            Send(self,@MsgSendUser,#message_rsc=autoloot_off_msg);
-
-            return;
-         }
-
-         if StringContain(String,"reagentbag on")
-            AND NOT Send(self,@GetReagentBagAuto)
-         {
-            Send(self,@SetReagentBagAuto,#value=TRUE);
-            Send(self,@MsgSendUser,#message_rsc=reagentbag_auto_on);
-
-            return;
-         }
-
-         if StringContain(String,"reagentbag off")
-            AND Send(self,@GetReagentBagAuto)
-         {
-            Send(self,@SetReagentBagAuto,#value=FALSE);
-            Send(self,@MsgSendUser,#message_rsc=reagentbag_auto_off);
-
-            return;
          }
       }
 
@@ -4835,24 +4810,13 @@ messages:
 
       if type = SAY_GUILD
       {
-         if StringContain(string,guild_motd_command)
-            AND poGuild <> $
-            AND (Send(poGuild,@GetRank,#who=self) = RANK_MASTER
-               OR Send(poGuild,@GetRank,#who=self) = RANK_LIEUTENANT)
+         if StringContain(string,user_say_guild_motd)
          {
-            Send(poGuild,@SetGuildMOTD,#who=self,#string=string);
-
-            return;
-         }
-         if StringContain(string,guild_clear_motd_command)
-            AND poGuild <> $
-            AND Send(poGuild,@GetGuildMaster) = self
-            AND (Send(poGuild,@GetRank,#who=self) = RANK_MASTER
-               OR Send(poGuild,@GetRank,#who=self) = RANK_LIEUTENANT)
-         {
-            Send(poGuild,@SetGuildMOTD,#who=self,#string=$);
-
-            return;
+            % If UserSayGuildMOTD handles the string, don't keep checking.
+            if Send(self,@UserSayGuildMOTD,#string=string)
+            {
+               return;
+            }
          }
 
          % If the user has tells squelched, block guild sends too.
@@ -4877,7 +4841,7 @@ messages:
 
             bTranceBlocksSay = FALSE;
             
-            for i in plEnchantments
+            foreach i in plEnchantments
             {
                if IsClass(nth(i,2),&Trance)
                {
@@ -4968,6 +4932,406 @@ messages:
       return;
    }
 
+   UserSayGuildMOTD(string = $)
+   {
+      if poGuild = $
+      {
+         return FALSE;
+      }
+
+      if StringContain(string,guild_motd_command)
+         AND (Send(poGuild,@GetRank,#who=self) = RANK_MASTER
+            OR Send(poGuild,@GetRank,#who=self) = RANK_LIEUTENANT)
+      {
+         Send(poGuild,@SetGuildMOTD,#who=self,#string=string);
+
+         return TRUE;
+      }
+
+      if StringContain(string,guild_clear_motd_command)
+         AND Send(poGuild,@GetGuildMaster) = self
+         AND (Send(poGuild,@GetRank,#who=self) = RANK_MASTER
+            OR Send(poGuild,@GetRank,#who=self) = RANK_LIEUTENANT)
+      {
+         Send(poGuild,@SetGuildMOTD,#who=self,#string=$);
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   UserSayInventory(string = $)
+   {
+      local i, lSortInfo, oTemplateItem, n, bFound;
+
+      if StringEqual(string,user_say_inv_sort_clear)
+      {
+         plClassOrderPreferences = $;
+         Send(self,@MsgSendUser,#message_rsc=inventory_sort_cleared);
+
+         return TRUE;
+      }
+
+      if StringEqual(string,user_say_inv_sort_report)
+      {
+         Send(self,@MsgSendUser,#message_rsc=inventory_sort_report_header);
+
+         lSortInfo = Send(SYS,@GetSortInfo);
+
+         foreach i in plClassOrderPreferences
+         {
+            bFound = FALSE;
+            foreach n in lSortInfo
+            {
+               if Nth(n,2) = i
+               {
+                  Send(self,@MsgSendUser,#message_rsc=inventory_sort_report,
+                        #parm1=Nth(n,1));
+                  bFound = TRUE;
+
+                  break;
+               }
+            }
+
+            if bFound
+            {
+               continue;
+            }
+
+            oTemplateItem = Send(SYS,@FindTemplateItemByClass,#cClass=i);
+
+            if oTemplateItem <> $
+            {
+               Send(self,@MsgSendUser,#message_rsc=inventory_sort_report,
+                     #parm1=Send(oTemplateItem,@GetName));
+            }
+         }
+
+         return TRUE;
+      }
+
+      if StringContain(string,user_say_inv_sort_add)
+      {
+         StringSubstitute(string,user_say_inv_sort_add,"");
+
+         lSortInfo = Send(SYS,@GetSortInfo);
+
+         foreach i in lSortInfo
+         {
+            if StringEqual(string,First(i))
+            {
+               if plClassOrderPreferences <> $
+                  AND FindListElem(plClassOrderPreferences,Nth(i,2)) <> 0
+               {
+                  Send(self,@MsgSendUser,#message_rsc=inventory_already_in_list);
+
+                  return TRUE;
+               }
+
+               plClassOrderPreferences =
+                       AppendListElem(Nth(i,2),plClassOrderPreferences);
+
+               Send(self,@MsgSendUser,#message_rsc=inventory_class_added,
+                     #parm1=Nth(i,1));
+
+               return TRUE;
+            }
+         }
+
+         oTemplateItem = Send(SYS,@FindTemplateItemByName,#string=string);
+
+         if oTemplateItem <> $
+         {
+            plClassOrderPreferences = AppendListElem(GetClass(oTemplateItem),
+                                             plClassOrderPreferences);
+            Send(self,@MsgSendUser,#message_rsc=inventory_class_added,
+                  #parm1=Send(oTemplateItem,@GetName));
+
+            return TRUE;
+         }
+
+         Send(self,@MsgSendUser,#message_rsc=inventory_sort_no_item);
+
+         return TRUE;
+      }
+
+      if StringEqual(string,user_say_inv_sort_help)
+      {
+         Send(self,@MsgSendUser,#message_rsc=inventory_sort_help);
+
+         return TRUE;
+      }
+
+      if StringEqual(string,user_say_inv_sort)
+      {
+         plPassive = Send(SYS,@SortItemsByType,#lItems=plPassive,
+                           #lClassOrder=plClassOrderPreferences);
+         Send(self,@ToCliInventory);
+         Send(self,@ToCliUseList);
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   UserSaySurvival(string = $)
+   {
+      local lSurvivalOptions, oForceBaseRoom;
+
+      if IsClass(poOwner,&SurvivalRoom)
+      {
+         % Can't start an arena from an existing one.
+         return FALSE;
+      }
+
+      if StringContain(string,user_say_start_solo_survival)
+      {
+         if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
+            OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
+            OR Send(poOwner,@GetRoomNum) = RID_FIELD1
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
+
+            return TRUE;
+         }
+
+         Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,#who=self);
+
+         return TRUE;
+      }
+
+      if StringEqual(string,user_say_join_pub_survival)
+      {
+         if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
+            OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
+            OR Send(poOwner,@GetRoomNum) = RID_FIELD1
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
+
+            return TRUE;
+         }
+
+         if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindPublicRoom) = $
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_no_public_rooms);
+
+            return TRUE;
+         }
+
+         if Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
+                  @FindPublicRoom),@GetAllowJoins)
+         {
+            Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
+                  @FindPublicRoom),@Teleport,#what=self);
+         }
+         else
+         {
+            Send(self,@MsgSendUser,#message_rsc=public_survival_too_late);
+         }
+
+         return TRUE;
+      }
+
+      if StringContain(string,user_say_start_pub_survival)
+      {
+         lSurvivalOptions = $;
+         if (NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
+            OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
+            OR Send(poOwner,@GetRoomNum) = RID_FIELD1)
+            AND NOT IsClass(self,&Admin)
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
+
+            return TRUE;
+         }
+
+         oForceBaseRoom = $;
+         if IsClass(self,&DM)
+         {
+            if StringContain(string,user_say_survival_opt_unnatural)
+            {
+               lSurvivalOptions = Cons(OPT_NATURAL,lSurvivalOptions);
+            }
+            if StringContain(string,user_say_survival_opt_pvpon)
+            {
+               lSurvivalOptions = Cons(OPT_PVP_ON,lSurvivalOptions);
+            }
+            if StringContain(string,user_say_survival_opt_starthere)
+            {
+               oForceBaseRoom = poOwner;
+            }
+         }
+
+         if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindPublicRoom) = $
+         {
+            Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,
+                  #who=self,#iPublic=TRUE,#sString=string,
+                  #lSurvivalOptions=lSurvivalOptions,
+                  #oForceBaseRoom=oForceBaseRoom);
+         }
+         
+         if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindPublicRoom) = $
+         {
+            Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,
+                  #who=self,#iPublic=TRUE,
+                  #lSurvivalOptions=lSurvivalOptions,
+                  #oForceBaseRoom=oForceBaseRoom);
+         }
+         else
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_already_public);
+         }
+
+         return TRUE;
+      }
+
+      if StringEqual(string,user_say_join_guild_survival)
+      {
+         if poGuild = $
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_no_guild);
+
+            return TRUE;
+         }
+
+         if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
+            OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
+            OR Send(poOwner,@GetRoomNum) = RID_FIELD1
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
+
+            return TRUE;
+         }
+
+         if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindRoomByGuild,
+                  #oGuild=poGuild) = $
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_no_guild_rooms);
+
+            return TRUE;
+         }
+
+         if Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
+                  @FindRoomByGuild,#oGuild=poGuild),@GetAllowJoins)
+         {
+            Send(Send(Send(SYS,@GetSurvivalRoomMaintenance),
+                  @FindRoomByGuild,#oGuild=poGuild),@Teleport,#what=self);
+         }
+         else
+         {
+            Send(self,@MsgSendUser,#message_rsc=guild_survival_too_late);
+         }
+
+         return TRUE;
+      }
+
+      if StringContain(string,user_say_start_guild_survival)
+      {
+         lSurvivalOptions = $;
+         if poGuild = $
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_no_guild);
+
+            return TRUE;
+         }
+
+         if NOT Send(poOwner,@CheckRoomFlag,#flag=ROOM_SAFELOGOFF)
+            OR Send(poOwner,@GetRoomNum) = RID_UNDERWORLD
+            OR Send(poOwner,@GetRoomNum) = RID_FIELD1
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_not_safe);
+
+            return TRUE;
+         }
+
+         if Send(Send(SYS,@GetSurvivalRoomMaintenance),@FindRoomByGuild,
+                  #oGuild=poGuild) = $
+         {
+            Send(Send(SYS,@GetSurvivalRoomMaintenance),@CreateRoom,
+                  #who=self,#guild_survival=TRUE);
+         }
+         else
+         {
+            Send(self,@MsgSendUser,#message_rsc=survival_err_already_guild);
+         }
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   UserSayReagentBag(string = $)
+   {
+      if StringContain(string,user_say_reagentbag_on)
+         AND NOT Send(self,@GetReagentBagAuto)
+      {
+         Send(self,@SetReagentBagAuto,#value=TRUE);
+         Send(self,@MsgSendUser,#message_rsc=reagentbag_auto_on);
+
+         return TRUE;
+      }
+
+      if StringContain(string,user_say_reagentbag_off)
+         AND Send(self,@GetReagentBagAuto)
+      {
+         Send(self,@SetReagentBagAuto,#value=FALSE);
+         Send(self,@MsgSendUser,#message_rsc=reagentbag_auto_off);
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   UserSayAutocombine(string = $)
+   {
+      if StringContain(string,user_say_autocombine_on)
+         AND NOT Send(self,@IsAutoCombining)
+      {
+         Send(self,@SetAutoCombine,#value=TRUE);
+         Send(self,@MsgSendUser,#message_rsc=autocombine_on_msg);
+
+         return TRUE;
+      }
+
+      if StringContain(string,user_say_autocombine_off)
+         AND Send(self,@IsAutoCombining)
+      {
+         Send(self,@SetAutoCombine,#value=FALSE);
+         Send(self,@MsgSendUser,#message_rsc=autocombine_off_msg);
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
+   UserSayAutoloot(string = $)
+   {
+      if StringContain(string,user_say_autoloot_on)
+         AND NOT Send(self,@IsAutolooting)
+      {
+         Send(self,@SetAutoloot,#value=TRUE);
+         Send(self,@MsgSendUser,#message_rsc=autoloot_on_msg);
+
+         return TRUE;
+      }
+
+      if StringContain(string,user_say_autoloot_off)
+         AND Send(self,@IsAutolooting)
+      {
+         Send(self,@SetAutoloot,#value=FALSE);
+         Send(self,@MsgSendUser,#message_rsc=autoloot_off_msg);
+
+         return TRUE;
+      }
+
+      return FALSE;
+   }
+
    UserSayGuild(string = $)
    {
       local i,lUsers,each_obj;
@@ -4980,7 +5344,7 @@ messages:
       }
 
       lUsers = $;
-      for i in Send(poGuild,@GetMemberList)
+      foreach i in Send(poGuild,@GetMemberList)
       {
          each_obj = First(i);
          if each_obj <> self and Send(each_obj,@IsLoggedOn)
@@ -5050,7 +5414,7 @@ messages:
             return;
          }
 
-         for i in users
+         foreach i in users
          {
             Send(i,@SomeoneSaid,#what=self,#type=type,#string=string);
          }
@@ -5120,6 +5484,7 @@ messages:
          AddPacket(1, byInscription);
 
          Send(what,@ShowDesc,#bShowAll = bShow_All,#who=self);
+
          if (byInscription)
          {
             Send(what,@ShowInscription);
@@ -5394,7 +5759,7 @@ messages:
       
       Send(self,@MsgSendUser,#message_rsc=user_mail_to);
 
-      for i in dest_list
+      foreach i in dest_list
       {
          Send(i,@ReceiveMail,#from=Send(self,@GetTrueName),
               #dest_list=dest_list,#perm_string=string);
@@ -5429,7 +5794,7 @@ messages:
 
          AddPacket(1,BP_MAIL, 4,iIndex, STRING_RESOURCE,First(lNew_mail),
                    4,Nth(lNew_mail,2), 2,Length(Nth(lNew_mail,3)));
-         for j in Nth(lNew_mail,3)
+         foreach j in Nth(lNew_mail,3)
          {
             AddPacket(STRING_RESOURCE,Send(j,@GetTrueName));
          }
@@ -5473,6 +5838,7 @@ messages:
       }
 
       if index <> $
+         AND plNew_mail <> $
       {
          if Length(plNew_mail) < index
          {
@@ -5642,6 +6008,15 @@ messages:
    {
       local i, bFound, iSpell, iSpellNum, iSpellPower, lFinalTargets;
 
+      % Check for valid spell first. This is mainly an issue during
+      % system saves where a user might cast something with the wrong
+      % object ID.
+      if oSpell = $
+         OR NOT IsClass(oSpell,&Spell)
+      {
+         return;
+      }
+
       % Command minions to aid in combat
       if lTargets <> $
          AND IsClass(oSpell,&AttackSpell)
@@ -5673,7 +6048,7 @@ messages:
       iSpellNum = Send(oSpell,@GetSpellNum);
 
       bFound = FALSE;
-      for i in plSpells
+      foreach i in plSpells
       {
          iSpell = Send(self,@DecodeSpellNum,#compound=i);
          if iSpellNum = iSpell
@@ -5818,7 +6193,7 @@ messages:
 
       % Must be holding things you're offering, and have no dupes.
       lObjects = $;
-      for i in item_list
+      foreach i in item_list
       {
          if lObjects <> $
             AND FindListElem(lObjects,i) <> 0
@@ -5838,7 +6213,7 @@ messages:
       }
 
       % Check quantities; must be positive
-      for i in number_list
+      foreach i in number_list
       {
         if i < 1
         {
@@ -5866,7 +6241,7 @@ messages:
       plOffer_items = $;
 
       lNumbers = number_list;
-      for i in item_list
+      foreach i in item_list
       {
          if IsClass(i,&NumberItem)
          {
@@ -5889,7 +6264,7 @@ messages:
       }
 
       AddPacket(1,BP_OFFERED,2,Length(plOffer_items));
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          Send(self,@ToCliObject,#what=i);
       }
@@ -5912,7 +6287,7 @@ messages:
       }
 
       % Check quantities; must be positive
-      for i in number_list
+      foreach i in number_list
       {
         if i < 1
         {
@@ -5922,7 +6297,7 @@ messages:
       }
 
       % must be holding things you're offering
-      for i in item_list
+      foreach i in item_list
       {
          if Send(i,@GetOwner) <> self
          {
@@ -5945,7 +6320,7 @@ messages:
       plOffer_items = $;
 
       lNumbers = number_list;
-      for i in item_list
+      foreach i in item_list
       {
          if IsClass(i,&NumberItem)
          {
@@ -5968,7 +6343,7 @@ messages:
       }
 
       AddPacket(1,BP_OFFERED,2,Length(plOffer_items));
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          Send(self,@ToCliObject,#what=i);
       }
@@ -5987,7 +6362,7 @@ messages:
       local i, how_many;
 
       how_many = Send(ToBeRemoved,@GetNumber);
-      for i in plPassive
+      foreach i in plPassive
       {
          if GetClass(i) = GetClass(ToBeRemoved)
          {
@@ -6074,7 +6449,7 @@ messages:
       }
 
       % Check if we can receive the items.
-      for i in item_list
+      foreach i in item_list
       {
          if NOT Send(i,@ReqNewOwnerAttributes,#who=self,#type=1)
          {
@@ -6106,7 +6481,7 @@ messages:
       Send(self,@ToCliObject,#what=what);
       AddPacket(2,Length(item_list));
 
-      for i in item_list
+      foreach i in item_list
       {
          Send(self,@ToCliObject,#what=i);
       }
@@ -6137,7 +6512,7 @@ messages:
       local i;
 
       poOffer_who = $;
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          if IsClass(i,&NumberItem)
          {
@@ -6197,7 +6572,7 @@ messages:
       }
 
       % Check quantities; must be positive
-      for i in number_list
+      foreach i in number_list
       {
         if i < 1
         {
@@ -6209,7 +6584,7 @@ messages:
       plOffer_items = $;
       lNumbers = number_list;
       lObjects = $;
-      for i in item_list
+      foreach i in item_list
       {
          if lObjects <> $
             AND FindListElem(lObjects,i) <> 0
@@ -6251,7 +6626,7 @@ messages:
       }
 
       AddPacket(1,BP_COUNTEROFFERED, 2,Length(plOffer_items));
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          Send(self,@ToCliObject,#what=i);
       }
@@ -6280,7 +6655,7 @@ messages:
       }
 
       AddPacket(1,BP_COUNTEROFFER,2,Length(item_list));
-      for i in item_list
+      foreach i in item_list
       {
          Send(self,@ToCliObject,#what=i);
       }
@@ -6299,7 +6674,7 @@ messages:
       iWeight = 0;
       iBulk = 0;
 
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          if NOT Send(i,@ReqNewOwner,#what=poOffer_who)
          {
@@ -6323,7 +6698,7 @@ messages:
          if IsClass(i,&NumberItem)
          {
             bFound = FALSE;
-            for j in plPassive
+            foreach j in plPassive
             {
                if GetClass(j) = GetClass(i)
                {
@@ -6395,11 +6770,11 @@ messages:
    {
       local i,j,bFound;
 
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          if IsClass(i,&NumberItem)
          {
-            for j in plPassive
+            foreach j in plPassive
             {
                if GetClass(j) = GetClass(i)
                {
@@ -6451,7 +6826,7 @@ messages:
       Send(poOffer_who,@OfferSubtractNumberItems);
       
       oHolder = Send(SYS,@GetSystemHolder1);
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          Send(oHolder,@NewHold,#what=i);
       }
@@ -6473,7 +6848,7 @@ messages:
             lTake_items = Send(oHolder,@GetHolderPassive);
          }
 
-         for i in lTake_items
+         foreach i in lTake_items
          {
             if Send(self,@ReqNewHold,#what=i)
             {
@@ -6507,7 +6882,7 @@ messages:
       % drop the stuff
 
       oHolder = Send(SYS,@GetSystemHolder2);
-      for i in plOffer_items
+      foreach i in plOffer_items
       {
          Send(oHolder,@NewHold,#what=i);
       }
@@ -6528,7 +6903,7 @@ messages:
             lTake_items = Send(oHolder,@GetHolderPassive);
          }
 
-         for i in lTake_items
+         foreach i in lTake_items
          {
             if Send(self,@ReqNewHold,#what=i)
             {
@@ -6613,7 +6988,7 @@ messages:
 
       if Send(what,@MobIsVaultman)
       {
-         for i in lSaleItems
+         foreach i in lSaleItems
          {
             Send(self,@ToCliObject,#what=i);
             AddPacket(4,Send(what,@GetVaultRetrievalFee,#what=i,#who=self));
@@ -6621,7 +6996,7 @@ messages:
       }
       else
       {
-         for i in lSaleItems
+         foreach i in lSaleItems
          {
             Send(self,@ToCliObject,#what=i);
             AddPacket(4,Send(what,@GetPrice,#what=i,#who=self));
@@ -6650,7 +7025,7 @@ messages:
 
          Send(self,@ToCliObject,#what=what);
          AddPacket(2,Length(lSaleItems));
-         for i in lSaleItems
+         foreach i in lSaleItems
          {
             Send(self,@ToCliObject,#what=i);
             AddPacket(4,Send(what,@GetVaultRetrievalFee,#what=i,#who=self));
@@ -6670,7 +7045,7 @@ messages:
       {
          lHalls = Send(SYS,@GetGuildHalls);
          iAvailable = 0;
-         for i in lHalls
+         foreach i in lHalls
          {
             if Send(i,@GetPurchaseValue,#who=self) <> -1
             {
@@ -6680,7 +7055,7 @@ messages:
 
          AddPacket(1,BP_USERCOMMAND, 1,UC_GUILD_HALLS);
          AddPacket(2,iAvailable);
-         for i in lHalls
+         foreach i in lHalls
          {
             if Send(i,@GetPurchaseValue,#who=self) <> -1
             {
@@ -6713,7 +7088,7 @@ messages:
    {
       local i;
       % Check quantities; must be positive
-      for i in number_list
+      foreach i in number_list
       {
         if i < 1
         {
@@ -6731,7 +7106,7 @@ messages:
    {
       local i;
       % Check quantities; must be positive
-      for i in number_list
+      foreach i in number_list
       {
         if i < 1
         {
@@ -6769,14 +7144,24 @@ messages:
       % Can't post if squelched
       if piFlags2 & PFLAG2_SQUELCHED_POSTS
       {
-         Send(self, @MsgSendUser, #message_rsc=user_news_squelched);
+         Send(self,@MsgSendUser,#message_rsc=user_news_squelched);
+
          return;
       }
-      
-      % there has to be SOME kind of length limit
+
+      % There has to be SOME kind of length limit.
       if StringLength(body) > NEWS_POSTING_MAX_LENGTH
       {
-         Send(self, @MsgSendUser, #message_rsc=user_news_toobig);
+         Send(self,@MsgSendUser,#message_rsc=user_news_toobig);
+
+         return;
+      }
+
+      % Check subject length.
+      if StringLength(title) > NEWS_POSTING_MAX_SUBJECT_LENGTH
+      {
+         Send(self,@MsgSendUser,#message_rsc=user_news_subject_toobig);
+
          return;
       }
 
@@ -6789,10 +7174,11 @@ messages:
       }
 
       % Need to be in same room as news globe
-      if (NOT Send(poOwner, @ContainsNewsID, #nid = Send(oNews, @GetNewsNum)))
+      if (NOT Send(poOwner,@ContainsNewsID,#nid=Send(oNews,@GetNewsNum)))
       {
          Debug("Client request for posting news from another room, user = ",
                Send(self,@GetName));
+
          return;
       }
 
@@ -6805,7 +7191,7 @@ messages:
 
             return;
          }
-         
+
          piNumberOfNewsPosts = piNumberOfNewsPosts + 1;
       }
       else
@@ -6943,7 +7329,7 @@ messages:
       {
          oLastSpellItem = $;
 
-         for i in plPassive
+         foreach i in plPassive
          {
             if GetClass(i) = GetClass(what)
                AND i <> what
@@ -7568,6 +7954,8 @@ messages:
          {
             % if in inventory
             Send(self,@ToCliObject,#what=what,#show_type=SHOW_INVENTORY);
+            Post(self,@DrawCapacity);
+            Post(self,@DrawBulk);
          }
          else
          {
@@ -8021,7 +8409,7 @@ messages:
       
       if num = 1
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = ATCK_WEAP_ALL
             {
@@ -8036,7 +8424,7 @@ messages:
       }
       if num = 2
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = ATCK_WEAP_THRUST
             {
@@ -8051,7 +8439,7 @@ messages:
       }
       if num = 3
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = ATCK_WEAP_BLUDGEON
             {
@@ -8066,7 +8454,7 @@ messages:
       }
       if num = 4
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = ATCK_WEAP_SLASH
             {
@@ -8081,7 +8469,7 @@ messages:
       }
       if num = 5
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = ATCK_WEAP_PIERCE
             {
@@ -8096,7 +8484,7 @@ messages:
       }
       if num = 6
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_ALL
             {
@@ -8111,7 +8499,7 @@ messages:
       }
       if num = 7
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_FIRE
             {
@@ -8126,7 +8514,7 @@ messages:
       }
       if num = 8
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_SHOCK
             {
@@ -8141,7 +8529,7 @@ messages:
       }
       if num = 9
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_COLD
             {
@@ -8156,7 +8544,7 @@ messages:
       }
       if num = 10
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_ACID
             {
@@ -8171,7 +8559,7 @@ messages:
       }
       if num = 11
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_HOLY
             {
@@ -8186,7 +8574,7 @@ messages:
       }
       if num = 12
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_UNHOLY
             {
@@ -8201,7 +8589,7 @@ messages:
       }
       if num = 13
       {
-         for i in lCurrentResistances
+         foreach i in lCurrentResistances
          {
             if Nth(i,1) = -ATCK_SPELL_QUAKE
             {
@@ -8673,7 +9061,7 @@ messages:
       {
          oRoom = Send(SYS,@FindRoomByNum,#num=RID_OOG);
          oSaveRoom = Send(SYS,@FindRoomByNum,#num=piSave_Room);
-         for i in Send(oSaveRoom,@GetHolderActive)
+         foreach i in Send(oSaveRoom,@GetHolderActive)
          {
             oGhost = Send(oSaveRoom,@HolderExtractObject,#data=i);
             if IsClass(oGhost,&LogoffGhost)
@@ -9062,7 +9450,7 @@ messages:
    {
       local i;
       
-      for i in plUsing
+      foreach i in plUsing
       {
          if Send(i,@AdjustsMaxHealth)
          {
@@ -9173,6 +9561,127 @@ messages:
       return TRUE;
    }
 
+   AddCurrentQuest(node = $, template = $)
+   "Adds a quest to the user's plActiveQuests list.  Each element in "
+   "this list is a quest template ID followed by the current active "
+   "quest node.  Quests are removed from this list by AddQuestHistory "
+   "when the quest finishes."
+   {
+      local i;
+
+      % Only add the quest if we have a valid quest template and quest node.
+      if node = $
+         OR template = $
+      {
+         return;
+      }
+
+      % See if we need to change the quest node.
+      % QuestEngine prevents duplicate quests.
+      foreach i in plActiveQuests
+      {
+         if First(i) = template
+         {
+            SetNth(i,2,node);
+
+            return;
+         }
+      }
+
+      % Add to the end, so quests are displayed in the order given.
+      plActiveQuests = AppendListElem([template,node],plActiveQuests);
+
+      % Update the user's quest log.
+      Send(self,@ToCliStats,#group=5);
+
+      return;
+   }
+
+   RemoveCurrentQuest(index=$)
+   "Deletes a quest from the user's plActiveQuests."
+   {
+      local i;
+
+      if index = $
+      {
+         return;
+      }
+
+      foreach i in plActiveQuests
+      {
+         if First(i) = index
+         {
+            plActiveQuests = DelListElem(plActiveQuests,i);
+         }
+      }
+
+      % Post this, so plQuestHistory can update first.
+      Post(self,@ToCliStats,#group=5);
+
+      return;
+   }
+
+   GetActiveQuestNode(index=$)
+   "Uses the quest template index to get the quest node the "
+   "user is currently on."
+   {
+      local i;
+
+      if index = QST_ID_NONE
+      {
+         return $;
+      }
+
+      % Try active quests first.
+      foreach i in plActiveQuests
+      {
+         if First(i) = index
+         {
+            return Nth(i,2);
+         }
+      }
+
+      % Check completed list.
+      foreach i in plQuestHistory
+      {
+         if (First(i) & QUEST_HISTORY_MASK) = index
+            AND (First(i) & QUEST_HISTORY_SUCCESS)
+         {
+            return $;
+         }
+      }
+
+      return $;
+   }
+
+   ResignFaction()
+   "Cancel any active loyalty or faction quests."
+   {
+      local i, iQID;
+
+      if plActiveQuests = $
+      {
+         propagate;
+      }
+
+      foreach i in plActiveQuests
+      {
+         iQID = First(i);
+         if iQID = QST_ID_PRINCESS_SERVICE
+            OR iQID = QST_ID_DUKE_SERVICE
+            OR iQID = QST_ID_REBEL_SERVICE
+            OR iQID = QST_ID_PRINCESS_SOLDIER
+            OR iQID = QST_ID_DUKE_SOLDIER
+            OR iQID = QST_ID_REBEL_SOLDIER
+         {
+            % Post this, because it will edit the plActiveQuests list.
+            Post(Nth(i,2),@DeadlineExpired);
+         }
+      }
+
+      propagate;
+   }
+
    % plQuestHistory is list of lists of the format
    %  [ compound, last_success_time, last_failure_time ]
    % compound is:
@@ -9206,7 +9715,7 @@ messages:
          return $;
       }
       
-      for lQH in plQuestHistory
+      foreach lQH in plQuestHistory
       {
          if (first(lQH) & QUEST_HISTORY_MASK) = index
          {
@@ -9223,25 +9732,27 @@ messages:
    "successtime, failtime.  "
    "Returns TRUE on success, FALSE if illegal parameters provided."
    {
-      local lQH, i, iLength, iTime;
-      
-      if index = $ 
+      local lQH, iLength, iTime, templQH;
+
+      if index = $
       {
          return FALSE;
       }
-      
+
       if (index & ~QUEST_HISTORY_MASK) <> 0
       {
          return FALSE;
       }
-      
+
       if success = $
       {
          return FALSE;
       }
-      
+
+      Send(self,@RemoveCurrentQuest,#index=index);
+
       iTime = Send( self, @GetTimeLoggedIn );
-      for lQH in plQuestHistory
+      foreach lQH in plQuestHistory
       {
          if (first(lQH) & QUEST_HISTORY_MASK) = index
          {
@@ -9249,16 +9760,18 @@ messages:
             {
                SetNth(lQH,1,(First(lQH)|QUEST_HISTORY_SUCCESS));
                SetNth(lQH,2,iTime);
-               
-               return TRUE;
             }
             else
             {
                SetNth(lQH,1,(First(lQH)|QUEST_HISTORY_FAILURE));
                SetNth(lQH,3,iTime);
-               
-               return TRUE;
             }
+            % Move quest to front of list.
+            templQH = lQH;
+            plQuestHistory = DelListElem(plQuestHistory, lQH);
+            plQuestHistory = Cons(lQH, plQuestHistory);
+
+            return TRUE;
          }
       }
 
@@ -9271,11 +9784,11 @@ messages:
       {
          lQH = [(index | QUEST_HISTORY_FAILURE), 0, iTime];
       }
-      
-      plQuestHistory = cons(lQH, plQuestHistory);
-      
+
+      plQuestHistory = Cons(lQH, plQuestHistory);
+
       return TRUE;
-   }   
+   }
 
    ClearQuestHistory(index=$, allBelow=FALSE, allAbove=FALSE)
    "Admin supported."
@@ -9284,12 +9797,19 @@ messages:
    "Called with no args at suicide."
    {
       local oQuestEngine, step;
-      if (index = $) or (allBelow and allAbove)
+
+      if index = $
+         OR (allBelow AND allAbove)
       {
          plQuestHistory = $;
+         if pbLogged_on
+         {
+            Send(self,@ToCliStats,#group=5);
+         }
+
          return;
       }
-      
+
       oQuestEngine = Send(SYS,@GetQuestEngine);
       step = 0;
       
@@ -9326,12 +9846,17 @@ messages:
    {
       local lQH;
 
-      for lQH in plQuestHistory
+      foreach lQH in plQuestHistory
       {
          if (first(lQH) & QUEST_HISTORY_MASK) = index
          {
             plQuestHistory = DelListElem(plQuestHistory, lQH);
             
+            if pbLogged_on
+            {
+               Send(self,@ToCliStats,#group=5);
+            }
+
             return TRUE;
          }
       }
@@ -9504,63 +10029,68 @@ messages:
       return piSave_Angle;
    }
 
-   RemoveOldMail()
+   RemoveOldMail(iDays=180)
    {
-      local iCutoff_time,lRecent_mail,lNew_mail,iTime,iRemoved;
-      
-      iCutoff_time =  GetTime() - 30*DAY;
+      local iCutoff_time, lRecent_mail, lNew_mail, iTime, iRemoved;
+
+      iCutoff_time =  GetTime() - (iDays * DAY);
       lRecent_mail = $;
       iRemoved = 0;
-      for lNew_mail in plNew_mail
+
+      foreach lNew_mail in plNew_mail
       {
          % This is a list of [ from, time, list of to, other ]
          iTime = Nth(lNew_mail,2);
          if (iTime > iCutoff_time)
+            AND iTime < GetTime()
          {
             lRecent_mail = Cons(lNew_mail,lRecent_mail);
          }
          else
          {
-            iRemoved = iRemoved + 1;
+            ++iRemoved;
          }
       }
       if Length(plNew_mail) <> Length(lRecent_mail)
       {
-         Debug("for user",self,vrName,"had",Length(plNew_mail),"now",Length(lRecent_mail));
+         Debug("User",self,vrName,"had",Length(plNew_mail),"now",
+               Length(lRecent_mail));
       }
       plNew_mail = lRecent_mail;
+
       return iRemoved;
    }
 
    CleanBadMail()
    {
-      local lNew_mail,stuff,i,j;
-      
+      local lNew_mail, stuff, i, j;
+
       i = 1;
-      for lNew_mail in plNew_mail
+      foreach lNew_mail in plNew_mail
       {
          % This is a list of [ from, time, list of to, list of stuff ]
-	 stuff = Nth(lNew_mail,4);
-	 if (Length(stuff) > 1)
-	 {
+         stuff = Nth(lNew_mail,4);
+         if (Length(stuff) > 1)
+         {
             j = 1;
             while j <= Length(stuff)
             {
                if (Nth(stuff,j+1) = $)
-	       {
-	          Debug("found bad mail",self);
-		  plNew_mail = DelListElem(plNew_mail, lNew_mail);
-		  return 1;
-	       }
+               {
+                  Debug("found bad mail",self);
+                  plNew_mail = DelListElem(plNew_mail, lNew_mail);
+
+                  return 1;
+               }
                j = j + 2;
             }
-
-	 }
-	 i = i + 1;
+         }
+         ++i;
       }
+
       return 0;
    }
-   
+
    SetAutoloot(value=TRUE)
    {
       pbAutoloot = value;
@@ -9828,7 +10358,7 @@ messages:
       Debug("Skill Schools Stripped");
       
       % Now iterate through the player's spells and strip 2% per stat loss
-      for i in plSpells
+      foreach i in plSpells
       {
          iSpellNum = Send(self,@DecodeSpellNum,#compound=i);
          oSpell = Send(SYS,@FindSpellByNum,#num=iSpellNum);
@@ -9872,7 +10402,7 @@ messages:
       }
       Debug("Spell % Recalculated");
       
-      for i in plSkills
+      foreach i in plSkills
       {
          iSkillNum = Send(self,@DecodeSkillNum,#compound=i);
          oSkill = Send(SYS,@FindSkillByNum,#num=iSkillNum);
@@ -9958,6 +10488,6 @@ messages:
 
       return;
    }
-   
+
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

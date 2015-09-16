@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include f2.lkod
+
    room_OutdoorsF2 = F2.roo
    room_name_OutdoorsF2 ="The sandy shores of the Great Ocean"
    waterfall_soundF2 = wfall2.wav
@@ -59,12 +61,12 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 55000 % temporarily increased from 45000
+   piGen_time = 20000
    piGen_percent = 80
 
    piInit_count_min = 4
    piInit_count_max = 6
-   piMonster_count_max = 6 % temporarily reduced from 10 (default)
+   piMonster_count_max = 15
 
 messages:
 

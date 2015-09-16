@@ -413,6 +413,7 @@ void GameProtocolParse(session_node *s,client_msg *msg)
    char admin_cmd[500];
    int admin_len;
    int dm_type;
+   val_type invalidCharacter;
 
    GameMessageCount((unsigned char)msg->data[0]);
 
@@ -458,14 +459,35 @@ void GameProtocolParse(session_node *s,client_msg *msg)
    case BP_USE_CHARACTER :
       if (s->game->object_id == INVALID_OBJECT)
       {
-	 object_id = *((int *)(msg->data+1));
-	 u = GetUserByObjectID(object_id);
-	 if (u != NULL && u->account_id == s->account->account_id)
-	    GameStartUser(s,u);
-	 else
-	    eprintf("GameProtocolParse can't find user for obj %i in use char!!!\n",
-		    object_id);
-	 InterfaceUpdateSession(s);
+         object_id = *((int *)(msg->data+1));
+         u = GetUserByObjectID(object_id);
+         if (u != NULL && u->account_id == s->account->account_id)
+         {
+            // Determine if we're trying to logon a valid, created character.
+            invalidCharacter.int_val = SendTopLevelBlakodMessage(object_id, IS_FIRST_TIME_MSG, 0, NULL);
+            if (!invalidCharacter.v.data)
+            {
+               GameStartUser(s,u);
+               InterfaceUpdateSession(s);
+            }
+            else
+            {
+               eprintf("GameProtocolParse got acct %i trying to log on illegal object %i!\n",
+                  u->account_id, object_id);
+               // Block IP for 1 minute, and hangup connection.
+               AddBlock(ConfigInt(SOCKET_BLOCK_TIME)/5, &s->conn.addr);
+               HangupSession(s);
+            }
+         }
+         else
+         {
+            eprintf("GameProtocolParse can't find user for obj %i in use char!!!\n",
+               object_id);
+            // Block IP for 1 minute, and hangup connection.
+            AddBlock(ConfigInt(SOCKET_BLOCK_TIME)/5, &s->conn.addr);
+            HangupSession(s);
+
+         }
       }
       break;
 
@@ -571,8 +593,8 @@ void GameStartUser(session_node *s,user_node *u)
    name_val.int_val = SendTopLevelBlakodMessage(s->game->object_id,USER_NAME_MSG,0,NULL);
    r = GetResourceByID(name_val.v.data);
 
-   if (r && r->resource_val)
-     MySQLRecordPlayerLogin(s->account->name,r->resource_val,s->conn.name);
+   if (r && r->resource_val[0])
+     MySQLRecordPlayerLogin(s->account->name,r->resource_val[0],s->conn.name);
 
    SetSessionTimer(s,ConfigInt(CREDIT_DRAIN_TIME));
 }
@@ -635,7 +657,7 @@ void GameSendEachUserChoice(user_node *u)
 		 name_val.v.data);
 	    return;
       }
-      AddStringToPacket(strlen(r->resource_val),r->resource_val);
+      AddStringToPacket(strlen(r->resource_val[0]),r->resource_val[0]);
    }
 
    num_val.int_val = SendTopLevelBlakodMessage(u->object_id,IS_FIRST_TIME_MSG,0,NULL);
@@ -764,8 +786,8 @@ void UpdateSecurityRedbook()
 
    if (r)
    {
-      if (!old || (r->resource_val && 0 != strcmp(old,r->resource_val)))
-	 _redbookstring = strdup(r->resource_val);
+      if (!old || (r->resource_val[0] && 0 != strcmp(old,r->resource_val[0])))
+	 _redbookstring = strdup(r->resource_val[0]);
       else
 	 _redbookstring = old;
       _redbookid = r->resource_id;

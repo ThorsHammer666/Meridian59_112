@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include dement.lkod
+
    dement_name_rsc = "dement"
    dement_icon_rsc = idement.bgf
    dement_desc_rsc = \
@@ -107,6 +109,14 @@ messages:
    {
       if IsClass(who,&Player)
       {
+         % Handle transition from 3-element enchantment list elements to
+         % 4-element ones.
+         if state = $
+            OR state = 0
+         {
+            state = Send(who,@GetRawState,#what=self);
+         }
+
          Send(who,@AddIntellect,#points=First(state));
          if report
          {

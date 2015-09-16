@@ -22,6 +22,8 @@ constants:
 
 resources:
 
+   include f8.lkod
+
    room_name_OutdoorsF8 ="Lake of Jala's Song"
    room_OutdoorsF8 = F8.roo
    OutdoorsF8_music = walk7.mp3
@@ -61,13 +63,11 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 60000
+   piGen_time = 20000
    piGen_percent = 60
 
    piInit_count_min = 1
    piInit_count_max = 3
-
-   piMonster_count_max = 5
 
    pbDoor_open = FALSE
    ptDoor = $
@@ -197,7 +197,7 @@ messages:
          propagate;
       }
 
-      for i in plActive
+      foreach i in plActive
       {
          each_obj = send(self,@HolderExtractObject,#data=i);
 
@@ -255,7 +255,7 @@ messages:
 
       pbPasswordDoorUnlocked = TRUE;
 
-      for i in plActive
+      foreach i in plActive
       {
          each_obj = send(self,@HolderExtractObject,#data=i);
          if send(self,@inBalcony,#who=each_obj)
@@ -276,7 +276,7 @@ messages:
       ptPasswordDoorRelock = $;
       pbPasswordDoorUnlocked = FALSE;
 
-      for i in plActive
+      foreach i in plActive
       {
          each_obj = send(self,@HolderExtractObject,#data=i);
          if send(self,@InBalcony,#who=each_obj)

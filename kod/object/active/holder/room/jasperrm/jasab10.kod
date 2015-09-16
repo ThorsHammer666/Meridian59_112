@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include jasab10.lkod
+
    room_jasperAB10 = jasab10.roo
    room_name_JasperAB10 = "Disused Shop"
 
@@ -46,6 +48,11 @@ messages:
       plExits = Cons([ 6, 2, RID_JASWEST, 35, 25, ROTATE_NONE ],plExits);
 
       propagate;
+   }
+
+   GetRegion()
+   {
+      return RID_HISTORIC;
    }
 
 end

@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include identify.lkod
+
    identify_name_rsc = "identify"
    identify_icon_rsc = iidentif.bgf
    identify_desc_rsc = \
@@ -57,6 +59,11 @@ messages:
    CanPayCosts(who=$,lTargets=$,bItemCast=FALSE)
    {
       local oTarget;
+
+      if lTargets = $
+      {
+         return FALSE;
+      }
 
       oTarget = First(lTargets);
 

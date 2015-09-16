@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include h4.lkod
+
    room_name_OutdoorsH4 ="The Flatlands"
    room_OutdoorsH4 = H4.roo
    OutdoorsH4_music = forest.mp3
@@ -48,13 +50,13 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 120000
+   piGen_time = 20000
    piGen_percent = 70
 
    piInit_count_min = 2
    piInit_count_max = 5
 
-   piMonster_count_max = 8
+   piMonster_count_max = 10
 
 messages:
 

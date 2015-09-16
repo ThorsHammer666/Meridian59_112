@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include mrelder.lkod
+
    MarionElder_name_rsc = "Ran er'Hoth"
    MarionElder_icon_rsc = mrelder.bgf
    MarionElder_desc_rsc = \
@@ -33,7 +35,7 @@ resources:
       "I've pulled a few from their rotting skulls up in the mountains. You "
       "see, I know where their burial grounds are, and you could say that "
       "I’m a bit of a ~Icollector~I."
-	  
+
    MrEl_stat_window_trigger = "change stats"
 
 classvars:
@@ -64,9 +66,11 @@ messages:
    {
       if StringEqual(string,MrEl_stat_window_trigger)
       {
-         if Send(what,@GetBaseMaxHealth) <= Send(Send(Sys,@GetSettings),@GetFreeStatsResetCap)
+         if Send(what,@FindHolding,#class=&StatsResetToken) <> $
+            OR (Send(what,@GetBaseMaxHealth)
+               <= Send(Send(SYS,@GetSettings),@GetFreeStatsResetCap))
          {
-            Send(what, @SendStatChange);
+            Send(what,@SendStatChange);
          }
       }
 
@@ -130,17 +134,18 @@ messages:
    {
       return TRUE;
    }
-   
-   GotWantedItem(who=$, obj = 0)
-   {
-      local oPlayerObj, i;
 
+   CheckWhyWanted(obj=$,who=$)
+   {
       if IsClass(obj,&StatsResetToken)
       {
          Send(who,@SendStatChange);
+
+         % We don't destroy the item, so return FALSE.
+         return FALSE;
       }
 
-      return FALSE;
+      propagate;
    }
 
 end

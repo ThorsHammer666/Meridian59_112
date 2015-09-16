@@ -21,6 +21,8 @@ constants:
 
 resources:
 
+   include dethlink.lkod
+
    deathlink_name_rsc = "death link"
    deathlink_icon_rsc = ideathli.bgf
    deathlink_desc_rsc = \
@@ -82,9 +84,14 @@ messages:
          lTargets = Cons(who,lTargets);
       }
 
-      Send(First(lTargets),@AddAttackModifier,#what=self);
-
       propagate;
+   }
+
+   GetStateValue(iSpellpower=$,target=$,who=$)
+   {
+      Send(target,@AddAttackModifier,#what=self);
+
+      return iSpellpower;
    }
 
    GiveKilledBenefits(caster=$,victim=$)
@@ -145,11 +152,6 @@ messages:
    ModifyDamage(who=$,what=$,damage=$)
    {
       return damage;
-   }
-
-   EffectDesc()
-   {
-      propagate;
    }
 
 end

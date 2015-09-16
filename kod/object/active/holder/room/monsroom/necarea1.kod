@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include necarea1.lkod
+
    room_Necropolis1 = necarea1.roo
    room_name_Necropolis1 = "Winding Caverns"
 
@@ -41,7 +43,7 @@ properties:
    piBaseLight = LIGHT_DARK
    piOutside_factor = 0
 
-   piGen_time = 40000
+   piGen_time = 25000
    piGen_percent = 80
 
    piInit_count_min = 7

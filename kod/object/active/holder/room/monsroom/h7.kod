@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include h7.lkod
+
    room_OutdoorsH7 = H7.roo
    room_name_OutdoorsH7 ="Western border of the Twisted Wood"
    OutdoorsH7_music = walk7.mp3
@@ -45,13 +47,13 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 60000
+   piGen_time = 20000
    piGen_percent = 80
 
    piInit_count_min = 6
    piInit_count_max = 9
 
-   piMonster_count_max = 12
+   piMonster_count_max = 15
 
 messages:
 

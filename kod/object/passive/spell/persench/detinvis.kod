@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include detinvis.lkod
+
    DetectInvisible_name_rsc = "detect invisible"
    DetectInvisible_icon_rsc = idetinvi.bgf
    DetectInvisible_desc_rsc = \
@@ -48,7 +50,6 @@ classvars:
    viChance_To_Increase = 15
    viMeditate_ratio = 20
 
-
 properties:
 
 messages:
@@ -60,12 +61,12 @@ messages:
       return;
    }
 
-   CastSpell(who=$,iSpellPower=0)
+   GetStateValue(iSpellpower=$,target=$)
    {
-      %% Post this so it's after the flag being applied.
-      Post(who,@ToCliRoomContents);
+      % Post this so it's after the flag being applied.
+      Post(target,@ToCliRoomContents);
 
-      propagate;
+      return iSpellpower;
    }
 
    SetSpellPlayerFlag(who=$)
@@ -97,11 +98,6 @@ messages:
    GetPotionClass()
    {
       return &DetectInvisibilityPotion;
-   }
-
-   EffectDesc()
-   {
-      propagate;
    }
 
 end

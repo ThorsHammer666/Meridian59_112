@@ -16,6 +16,8 @@ constants:
 
 resources:
 
+   include f4.lkod
+
    room_OutdoorsF4 = F4.roo
    room_name_OutdoorsF4 ="East Merchant Way"
    OutdoorsF4_music = forest.mp3
@@ -45,13 +47,10 @@ properties:
 
    pbSnowGroundTexture = TRUE
 
-   piGen_time = 120000
    piGen_percent = 60
 
    piInit_count_min = 1
    piInit_count_max = 3
-
-   piMonster_count_max = 6
 
 messages:
 
