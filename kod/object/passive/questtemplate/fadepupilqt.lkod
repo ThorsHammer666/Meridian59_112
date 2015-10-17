@@ -1,10 +1,11 @@
 % Quest description.
-fadepupilquest_name_rsc = de "fade pupil quest"
+fadepupilquest_name_rsc = de "Verblassen Schüler Quest"
 fadepupilquest_desc_rsc = de \
-   "Joguer would like you to retrieve a formula for him, and in return "
-   "he will teach you the fade spell."
+   "Joguer möchte gerne, dass Du ihm eine Formel besorgst, und im Gegenzug "
+   "wird er Dich den Verblassen Zauber lehren."
 
 fadepupilquest_nodetwo_rsc = de \
+<<<<<<< HEAD
    "Joguer has asked you to retrieve his formula from %s.  In return, "
    "he will teach you the fade spell.  Ask %s about the formula, obtain "
    "it and bring it back to Joguer."
@@ -19,6 +20,20 @@ fadepupilquest_nodefour_rsc = de \
 fadepupilquest_completed_rsc = de \
    "You have completed the fade pupil quest.  Joguer will now "
    "teach you the fade spell."
+=======
+   "Joguer hat dich beauftragt die Formel von %s zu besorgen.  Im Gegenzug "
+   "wird er Dich den Verblassen Zauber lehren.  Frage %s nach der Formel, und  "
+   "bringe diese dann zurück zu Joguer."
+fadepupilquest_nodethree_rsc = de \
+   "%s wird dir die Formel geben, aber zuerst töte %s%s. Tue das "
+   "und kehre zurück zu %s."
+fadepupilquest_return_rsc = de \
+   "Kehre mit der Formel zu Joguer zurück."
+
+fadepupilquest_completed = de \
+   "Du hast das Verblassen Schüler Quest abgeschlossen.  Joguer wird "
+   "Dir nun den Verblassen Zauber beibringen."
+>>>>>>> origin/Meridian59_112
 
 % Quest resources.
 fadelearn_trigger = de "Schüler"
