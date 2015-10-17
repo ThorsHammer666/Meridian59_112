@@ -1,15 +1,14 @@
 % Quest description.
-kranofferingqt_name_rsc = de "Kraanan offering quest"
+kranofferingqt_name_rsc = de "Kraanan Opfer Quest"
 kranofferingqt_desc_rsc = de \
-   "Priestess Qerti'nya has invited you to chant with her, to give "
-   "strength to your Lord."
+   "Priesterin Qerti'nya hat dich dazu eingeladen mit ihr zu singen, um "
+   "den Lord zu Stärken."
 
 kranofferingqt_completed = de \
-   "You have given part of your life essence in order to strengthen "
-   "your Lord.  In return, you have received a powerful magical "
-   "item.  When placed at one of the Shrines located around the "
-   "world, the Shrine will be dedicated to Kraanan and his spells "
-   "will have more power."
+   "Du hast einen Teil deiner Lebenskraft an den Lord gegeben um Ihn zu stärken."
+   "Hier bekommst Du ein magischen Gegenstand dafür zurück. "
+   "Wenn dieser an einem Schrein plaziert wird, wird er Kraanan gesegnet,  "
+   "was dazu führt, dass Kraanan und alle Zauber Kraanans an Stärke gewinnen."
 
 % Quest resources.
 kraananoffering_assign_2 = de \
