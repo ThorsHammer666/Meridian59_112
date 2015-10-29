@@ -1,10 +1,10 @@
 % Quest description.
-merchanttaxqt_name_rsc = de "Händler Steuer Quest"
+merchanttaxqt_name_rsc = de "merchant tax quest"
 merchanttaxqt_desc_rsc = de \
-   "Überbringe Steuern für einen NPC."
+   "Courier some taxes for an NPC."
 
 merchanttaxqt_completed_rsc = de \
-   "Du hast das Händler Steuer Quest abgeschlossen."
+   "You have completed the merchant tax quest."
 
 % Quest resources.
 merchanttax_assign_2 = de \

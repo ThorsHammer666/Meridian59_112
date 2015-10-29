@@ -304,7 +304,6 @@ static keymap default_key_table[] = {
 };
 
 static TypedCommand commands[] = {
-<<<<<<< HEAD
 { "say",                CommandSay, },
 { "sagen",              CommandSay, },
 { "broadcast",          CommandBroadcast, },
@@ -401,7 +400,6 @@ static TypedCommand commands[] = {
 { "safety off",         CommandSafetyOff, },
 { "sicherheit aus",     CommandSafetyOff, },
 { "tempsafe on",        CommandTempSafeOn, },
-=======
 { "say",            CommandSay, },
 { "sagen",          CommandSay, },
 { "broadcast",      CommandBroadcast, },
@@ -498,7 +496,6 @@ static TypedCommand commands[] = {
 { "safety off",     CommandSafetyOff, },
 { "sicherheit aus", CommandSafetyOff, },
 { "tempsafe on",    CommandTempSafeOn, },
->>>>>>> Initial Upload
 { "tempsicherheit an",  CommandTempSafeOn, },
 { "tempsafe off",       CommandTempSafeOff, },
 { "tempsicherheit aus", CommandTempSafeOff, },
@@ -699,23 +696,13 @@ keymap	gCustomKeys[] =
 	{(WORD)-1,				(WORD)-1,				A_TABBACK,			(void *)IDC_MAIN},
 
 	// chat
-<<<<<<< HEAD
 	{(WORD)-1,				(WORD)-1,				A_GOTOSAY,			NULL},
-	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"say "},
-	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"tell "},
-	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"yell "},
-	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"broadcast "},
-	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"emote "},
+	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"sagen "},
+	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"telepathie "},
+	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"rufen "},
+	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"mitteilen "},
+	{(WORD)-1,				(WORD)-1,				A_TEXTINSERT,		"ego "},
 	{(WORD)-1,				(WORD)-1,				A_WHO,				NULL},
-=======
-	{-1,				-1,				A_GOTOSAY,			NULL},
-	{-1,				-1,				A_TEXTINSERT,		"sagen "},
-	{-1,				-1,				A_TEXTINSERT,		"telepathie "},
-	{-1,				-1,				A_TEXTINSERT,		"rufen "},
-	{-1,				-1,				A_TEXTINSERT,		"mitteilen "},
-	{-1,				-1,				A_TEXTINSERT,		"ego "},
-	{-1,				-1,				A_WHO,				NULL},
->>>>>>> Initial Upload
 
 	// aliases (fkey hotkeys)
 	{(WORD)-1,				(WORD)-1,				A_TEXTCOMMAND,		NULL},

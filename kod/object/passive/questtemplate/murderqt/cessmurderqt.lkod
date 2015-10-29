@@ -1,11 +1,11 @@
 % Quest description.
-cessmurderqt_name_rsc = de "Prinzessin: mysteriöses Mörder Quest"
+cessmurderqt_name_rsc = de "Princess murder mystery quest"
 cessmurderqt_desc_rsc = de \
-   "Die Prinzessin möchte von Dir, dass Du verschiedene Leute nach dem Tod "
-   "von Herzog Kalior fragst."
+   "The Princess would like you to question people regarding the "
+   "death of Duke Kalior."
 
 cessmurderqt_completed_rsc = de \
-   "Du hast das Prinzessin: mysteriöses Mörder Quest abgeschlossen."
+   "You have completed a Princess murder mystery quest."
 
 % Quest resources.
 murder_princess_assign = de \

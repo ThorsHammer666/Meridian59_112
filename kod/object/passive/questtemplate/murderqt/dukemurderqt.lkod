@@ -1,11 +1,11 @@
 % Quest description.
-dukemurderqt_name_rsc = de "Herzog: mysteriöses Mörder Quest"
+dukemurderqt_name_rsc = de "Duke murder mystery quest"
 dukemurderqt_desc_rsc = de \
-   "Herzog Arkadius möchte von Dir, dass Du verschiedene Leute nach dem Tod "
-   "von Herzog Kalior fragst."
+   "Duke Akardius would like you to question people regarding the "
+   "death of his predecessor, Duke Kalior."
 
 dukemurderqt_completed_rsc = de \
-   "Du hast das Herzog: mysteriöses Mörder Quest abgeschlossen."
+   "You have completed a Duke murder mystery quest."
 
 % Quest resources.
 murder_duke_assign = de \

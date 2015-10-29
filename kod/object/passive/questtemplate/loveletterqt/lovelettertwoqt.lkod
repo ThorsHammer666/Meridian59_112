@@ -1,13 +1,13 @@
 % Quest description.
-lovelettertwoquest_name_rsc = de "Madelias Liebesbrief Quest"
+lovelettertwoquest_name_rsc = de "Madelia's love letter quest"
 lovelettertwoquest_desc_rsc = de \
-   "Madelia hat dich beauftragt, für Sie einen Liebesbrief zu überbringen."
+   "Madelia has asked you to deliver a letter to her lover."
 
 lovelettertwoquest_deliver_rsc = de \
-   "Madelia hat dich beauftragt einen Liebesbrief an %s%s zu überbringen."
+   "Madelia has asked you to deliver a love letter to %s%s."
 
 lovelettertwoquest_completed_rsc = de \
-   "Du hast einen Liebesbrief für Madelia überbracht."
+   "You have delivered a love letter for Madelia."
 
 % Quest resources.
 love_letter_2_assign = de \

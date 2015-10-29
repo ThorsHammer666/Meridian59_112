@@ -1,15 +1,15 @@
 % Quest description.
-latetaxqt_name_rsc = de "Verspätete Steuer Quest"
+latetaxqt_name_rsc = de "late tax quest"
 latetaxqt_desc_rsc = de \
-   "Ein NPC ist spät dran mit seinen Steuern. Überbringe einen Brief  "
-   "vom Herzog um Ihn darüber zu informieren."
+   "An NPC is late in paying their taxes; courier a letter from the Duke "
+   "to inform them of their tardiness."
 
 latetaxqt_deliver_rsc = de \
-   "%s%s ist spät dran um %s Steuern zu zahlen; Überbringe einen Brief vom Herzog "
-   "um %s%s darüber zu informieren, dass er %s im Verzug ist."
+   "%s%s is late in paying %s taxes; courier a letter from the Duke "
+   "to inform %s%s of %s tardiness."
 
 latetaxqt_completed_rsc = de \
-   "Du hast das Verspätete Steuer Quest abgeschlossen."
+   "You have completed the late tax quest."
 
 % Quest resources.
 latetax_assign_2 = de \

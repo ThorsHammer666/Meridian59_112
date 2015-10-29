@@ -1,16 +1,16 @@
 % Quest description.
-princessjoin_name_rsc = de "Prinzessin Fraktionsbeitritt Quest"
+princessjoin_name_rsc = de "Princess join faction quest"
 princessjoin_desc_rsc = de \
-   "Prinzessin Kateriina hat dich beauftragt, einen Brief für Sie zu überbringen, um  "
-   "Dich zu beweisen."
+   "Princess Kateriina has asked you to deliver a letter for her, to prove "
+   "yourself worthy of her trust."
 
 princessjoin_deliver_rsc = de \
-   "Prinzessin Kateriina hat dich beauftragt, einen Brief zu %s, um "
-   "Dich zu beweisen."
+   "Princess Kateriina has requested that you deliver a letter to %s, to "
+   "prove yourself worthy of her trust."
 
 princessjoin_completed = de \
-   "Du hast deine Loyalität und Treue der Krone gegenüber beweisen, und "
-   "bist nun Anhänger von Prinzessin Kateriina."
+   "You have proven your loyalty to the crown, and are now a trusted "
+   "servant of Princess Kateriina."
 
 % Quest resources.
 princess_join2_assign = de \

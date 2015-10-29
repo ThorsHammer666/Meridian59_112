@@ -1,11 +1,11 @@
 % Quest description.
-dukesoldier_name_rsc = de "Herzog Soldatenschild Quest"
+dukesoldier_name_rsc = de "Duke soldier shield quest"
 dukesoldier_desc_rsc = de \
-   "Herzog Arkadius wird es Dir gestatten, der herzöglichen Armee beizutreten,  "
-   "wenn Du dich bewiesen hast, in dem Du einen seiner Feinde tötest."
+   "Duke Akardius will allow you to join the Ducal army, but first "
+   "you must prove your loyalty by slaying his enemies."
 
 dukesoldier_completed_rsc = de \
-      "Du hast dich bewiesen, und bist nun Soldat der herzöglichen Armee."
+   "You have proven your worth, and are now a soldier in the Ducal army."
 
 % Quest resources.
 duke_faction_soldier_assign_1 = de \

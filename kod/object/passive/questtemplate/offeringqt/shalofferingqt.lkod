@@ -1,14 +1,15 @@
 % Quest description.
-shalofferingqt_name_rsc = de "Shal'ill Opfer Quest"
+shalofferingqt_name_rsc = de "Shal'ille offering quest"
 shalofferingqt_desc_rsc = de \
-   "Priesterin Xiana hat dich dazu eingeladen mit ihr zu singen, um "
-   "die Herrin zu stärken."
+   "Priestess Xiana has invited you to chant with her, to give strength "
+   "to your Mistress."
 
 shalofferingqt_completed = de \
-   "Du hast einen Teil deiner Lebenskraft an Shal'ill gegeben um Sie zu stärken. "
-   "Hier bekommst Du ein magischen Gegenstand dafür zurück. "
-   "Wenn dieser an einem Schrein plaziert wird, wird er Shal'ill gesegnet,  "
-   "was dazu führt, dass Shal'ill und alle Zauber Shal'ills an Stärke gewinnen."
+   "You have given part of your life essence in order to strengthen "
+   "your Mistress.  In return, you have received a powerful magical "
+   "item.  When placed at one of the Shrines located around the "
+   "world, the Shrine will be dedicated to Shal'ille and her spells "
+   "will have more power."
 
 % Quest resources.
 shalilleoffering_assign_2 = de \

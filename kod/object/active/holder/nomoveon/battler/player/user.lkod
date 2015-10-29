@@ -259,13 +259,8 @@ user_news_toobig = de \
    "Wow Kumpel!! Atme mal tief durch, die Nachricht ist zu lang!"
 user_guild_rsc = de "Gilde"
 user_guildofficer_rsc = de "guildofficer"
-<<<<<<< HEAD
-user_default_url = de "http://www.openmeridian.de/"
-user_autocombine_off = de \
-=======
-user_default_url = de "http://www.Meridian59.de/"
+user_default_url = de "http://www.Meridian59.de"
 autocombine_off_msg = de \
->>>>>>> origin/Meridian59_112
    "Du entscheidest dich, die Gegenstände nicht mehr zu kombinieren."
 user_autocombine_on = de "Du entscheidest dich, die Gegenstände zu kombinieren."
 user_autoloot_on = de "Autoloot ist an."
@@ -312,3 +307,5 @@ inventory_sort_report_header = de \
    "Dein Inventar wird der nach der folgenden Reihenfolge sortiert:"
 inventory_sort_report = de "%s"
 inventory_already_in_list = de "Dies ist bereits in deiner Liste."
+user_time_string = de \
+   "Die Zeit in Meridian beträgt %i:00. Es ist der %q Tag des Jahres %i."

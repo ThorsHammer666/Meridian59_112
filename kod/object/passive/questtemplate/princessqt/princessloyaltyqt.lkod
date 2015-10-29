@@ -1,16 +1,16 @@
 % Quest description.
-princessloyalty_name_rsc = de "Prinzessin Loyalitäts Quest"
+princessloyalty_name_rsc = de "Princess loyalty quest"
 princessloyalty_desc_rsc = de \
-   "Prinzessin Kateriina hat dich beauftragt, einen Brief für Sie zu überbringen, um  "
-   "Dich zu beweisen."
+   "Princess Kateriina has asked you to deliver a letter for her, to prove "
+   "your loyalty to the crown."
 
 princessloyalty_deliver_rsc = de \
-   "Prinzessin Kateriina hat dich beauftragt, einen Brief zu %s, um "
-   "Dich zu beweisen."
+   "Princess Kateriina has requested that you deliver a letter to %s, to "
+   "prove your continuing loyalty to the crown."
 
 princessloyalty_completed = de \
-   "Du hast deine Loyalität und Treue der Krone gegenüber beweisen, und "
-   "bleibst Anhänger von Prinzessin Kateriina."
+   "You have proven your loyalty to the crown, and remain a trusted "
+   "servant of Princess Kateriina."
 
 % Quest resources.
 princess_standard2_assign = de \

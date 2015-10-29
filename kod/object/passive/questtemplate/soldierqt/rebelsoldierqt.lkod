@@ -1,11 +1,11 @@
 % Quest description.
-rebelsoldier_name_rsc = de "Rebellen Soldatenschild Quest"
+rebelsoldier_name_rsc = de "rebel soldier shield quest"
 rebelsoldier_desc_rsc = de \
-  "Jonas D'Accor wird es Dir gestatten, der Rebellenarmee beizutreten,  "
-   "wenn Du dich bewiesen hast, in dem Du einen seiner Feinde tötest."
+  "Jonas D'Accor will allow you to join the Rebel army, but first "
+   "you must prove your loyalty by slaying his enemies."
 
 rebelsoldier_completed_rsc = de \
-   "Du hast dich bewiesen, und bist nun Soldat der Rebellenarmee."
+   "You have proven your worth, and are now a soldier in the Rebel army."
 
 % Quest resources.
 rebel_faction_soldier_assign_1 = de \
