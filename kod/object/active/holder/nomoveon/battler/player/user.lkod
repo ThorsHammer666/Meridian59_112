@@ -260,7 +260,7 @@ user_news_toobig = de \
 user_guild_rsc = de "Gilde"
 user_guildofficer_rsc = de "guildofficer"
 user_default_url = de "http://www.Meridian59.de"
-autocombine_off_msg = de \
+user_autocombine_on = de \
    "Du entscheidest dich, die Gegenstände nicht mehr zu kombinieren."
 user_autocombine_on = de "Du entscheidest dich, die Gegenstände zu kombinieren."
 user_autoloot_on = de "Autoloot ist an."
