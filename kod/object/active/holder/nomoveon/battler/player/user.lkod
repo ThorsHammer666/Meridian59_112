@@ -179,7 +179,7 @@ user_temp_safe_invalid = de \
    "~B~U~k[###]~n ~B~vDein Schutzengel kann dich nicht weiter beschützen."
 user_grouping_on = de "~B~U~k[###]~n ~B~vDu kannst nun Gruppen beitreten."
 user_grouping_off = de \
-   "~B~U~k[###]~n ~B~vDu kannst keiner Gruppe mehr beitreten."
+   "~B~U~k[###]~n ~B~vDu nimmst nicht mehr an Gruppenbildungen teil."
 user_cant_go = de "Du kannst zu keinem Ort gehen."
 user_blocked_send = de "%s ignoriert Deine Mitteilungen."
 user_cant_suicide = de \
@@ -218,10 +218,11 @@ user_duplicate_guild_username = de \
 user_couldnt_replace = de \
    "Du konntest nicht zu Deinem Ausgangsort zurückkehren."
 user_logon = de \
-   "Willkommen in der Welt von Meridian 59! (Tippe \"hilfe\" um eine Anleitung "
-   "aufzurufen)."
+   "~BWillkommen auf Server 112 - der Offizielle Meridian59 Server in Deutschland! "
+   "(Tippe \"Hilfe\", um weitere Informationen rund um die Welt von Meridian59 zu "
+   "erhalten). "
 user_goto_lastsaferoom = de \
-   "You have been sent to the last safe place you visited."
+   "Du wurdest an den letzten sicheren Ort geschickt, den du besucht hast."
 user_goto_safety = de "Du wurdest an einen sicheren Ort geschickt."
 user_goto_object = de "%s%s hat Dich zu sich gerufen."
 user_goto_jail = de "Du wurdest ins Gefängnis von Barloque geworfen!"
@@ -260,9 +261,9 @@ user_news_toobig = de \
 user_guild_rsc = de "Gilde"
 user_guildofficer_rsc = de "guildofficer"
 user_default_url = de "http://www.Meridian59.de"
-user_autocombine_on = de \
-   "Du entscheidest dich, die Gegenstände nicht mehr zu kombinieren."
 user_autocombine_on = de "Du entscheidest dich, die Gegenstände zu kombinieren."
+user_autocombine_off = de \
+   "Du entscheidest dich, die Gegenstände nicht mehr zu kombinieren."
 user_autoloot_on = de "Autoloot ist an."
 user_autoloot_off = de "Autoloot ist aus."
 guild_survival_too_late = de \
