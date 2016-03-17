@@ -879,19 +879,23 @@ void DrawObjectDecorations(DrawnObject *object)
 
    room_contents_node *r;
 
-   if (!config.draw_names || effects.blind)
+   if (effects.blind)
       return;
 
    r = GetRoomObjectById(object->id);
    if (r == NULL)
       return;
 
-   if (!(r->obj.flags & OF_PLAYER) || (r->obj.drawingtype == DRAWFX_INVISIBLE))
+   if (!(r->obj.flags & OF_DISPLAY_NAME)
+      || (r->obj.drawingtype == DRAWFX_INVISIBLE)
+      || !config.draw_player_names && (r->obj.flags & OF_PLAYER)
+      || !config.draw_npc_names && (r->obj.flags & OF_NPC)
+      || !config.draw_sign_names && (r->obj.flags & OF_SIGN))
       return;
 
    // Draw player name
    range = FindVisibleObjectById(r->obj.id);
-   if (range == NULL || range->distance > MAX_NAME_DISTANCE)
+   if (!range || (range->distance > MAX_NAME_DISTANCE && !(r->obj.flags & OF_SIGN)))
       return;
    
    name = LookupNameRsc(r->obj.name_res);

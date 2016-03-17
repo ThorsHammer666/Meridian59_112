@@ -443,7 +443,7 @@ resources:
    player_angel = "Your guardian angel"
    intrigue_ambassador = "Baron Springer of Cor Noth Township"
 
-   player_newbie_honor_string = "This soul is new to the lands of Meridian 59."
+   player_newbie_honor_string = "This soul is new to the lands of Meridian 59.\n"
 
    player_newbie_commands = \
       "\n~BBasic Commands for Meridian 59:~B\n"
@@ -1189,7 +1189,6 @@ messages:
       }
 
       Send(SYS,@SystemRemoveFromChampionLists,#oldchamp = self);
-      Send(Send(SYS,@GetLibrary),@DeleteCompletedQuest,#who=self,#id=-1);
       Send(&QuestX,@CancelQuester,#quester=self);
       Send(self,@ClearQuestHistory);
 
@@ -2835,7 +2834,6 @@ messages:
 
       piNodelist = 0;
 
-      Send(Send(SYS,@GetLibrary),@DeleteCompletedQuest,#who=self,#id=-1);
       Send(&QuestX,@CancelQuester,#quester=self);
       Send(self,@ClearQuestHistory);
       Send(Send(SYS,@GetLore),@PlayerSuicides,#who=self);
@@ -5743,7 +5741,7 @@ messages:
    "Called when the player killed something."
    {
       local bReflection, i, oSoldierShield, monstkarma, iChance, oEnemyGuild,
-      shrunken, oVictimRoom;
+            oVictimRoom, oObject;
 
       % If we killed someone or something, we did damage.
       Send(self,@SetPlayerFlag,#flag=PFLAG_DID_DAMAGE,#value=TRUE);
@@ -5769,13 +5767,10 @@ messages:
                     #parm1=Send(what,@GetDef),#parm2=Send(what,@GetName));
             }
          }
-         else
+         else if self <> what
          {
-            if self <> what
-            {
-               Send(self,@MsgSendUser,#message_rsc=player_killed_something,
-                    #parm1=Send(what,@GetDef),#parm2=Send(what,@GetName));
-            }
+            Send(self,@MsgSendUser,#message_rsc=player_killed_something,
+                 #parm1=Send(what,@GetDef),#parm2=Send(what,@GetName));
          }
       }
 
@@ -5801,6 +5796,13 @@ messages:
          Send(oSoldierShield,@KilledSomething,#what=what);
       }
 
+      % Let JOF know we killed something.
+      oObject = Send(self,@FindUsing,#class=&JewelOfFroz);
+      if oObject <> $
+      {
+         Send(oObject,@KilledSomething,#what=what);
+      }
+
       if IsClass(what,&User)
          AND what <> self
       {
@@ -5818,12 +5820,12 @@ messages:
             if Send(what,@CheckPlayerFlag,#flag=PFLAG_OUTLAW)
                OR Send(what,@CheckPlayerFlag,#flag=PFLAG_MURDERER)
             {
-               piJustified_kill_count = piJustified_kill_count + 1;
+               ++piJustified_kill_count;
             }
             else
             {
-               piKill_count = piKill_count + 1;
-               piKill_count_decay = piKill_count_decay + 1;
+               ++piKill_count;
+               ++piKill_count_decay;
             }
 
             if NOT bReflection
@@ -5925,10 +5927,10 @@ messages:
       Send(self,@DrawHPChance);
 
       % Report to shrunken head
-      shrunken = Send(self,@FindHolding,#class=&ShrunkenHead);
-      if shrunken <> $
+      oObject = Send(self,@FindHolding,#class=&ShrunkenHead);
+      if oObject <> $
       {
-         Send(shrunken,@OpponentKilled,#what=what,#stroke_obj=stroke_obj);
+         Send(oObject,@OpponentKilled,#what=what,#stroke_obj=stroke_obj);
       }
 
       return;
@@ -7968,7 +7970,7 @@ messages:
 %  (which clearly doesn't belong in player; should be in the spell itself) to
 %  make it buyable.  - ARK 10/26/2010
 %
-%      if num = SID_DEATHS_DOOR
+%      if num = SID_SHADOW_RIFT
 %          AND ((NOT Send(self, @IsUsingA,#class=&NecromancerAmulet))
 %               AND (NOT IsClass(self,&Admin)))
 %      {

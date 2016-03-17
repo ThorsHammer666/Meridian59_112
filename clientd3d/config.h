@@ -27,6 +27,13 @@
 extern "C" {
 #endif
 
+// Color the user has selected for target halo/light.
+enum TargetColor {
+   TARGET_COLOR_RED = 0,
+   TARGET_COLOR_BLUE = 1,
+   TARGET_COLOR_GREEN = 2,
+};
+
 // Communication settings
 typedef struct {
    WORD  timeout;                 /* # of seconds to wait before redialing */
@@ -60,7 +67,10 @@ typedef struct {
    Bool security;                /* Use room security? */
    int  ini_version;             /* INI version number; restore defaults if it doesn't match */
 
-   Bool draw_names;              /* Draw names over players? */
+   Bool draw_player_names;       /* Draw names over players? */
+   Bool draw_npc_names;          /* Draw names over NPCs? */
+   Bool draw_sign_names;         /* Draw names over signs? */
+   Bool target_highlight;        /* Show targeting highlight effect? */
    Bool ignore_all;              /* Ignore EVERYTHING said? */
    Bool no_broadcast;            /* Ignore all broadcasts? */
    char ignore_list[MAX_IGNORE_LIST][MAX_CHARNAME + 1]; /* Usernames to ignore */
