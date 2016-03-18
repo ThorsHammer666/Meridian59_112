@@ -165,10 +165,10 @@ user_guildmate_logon = de "~IBegrüße Dein Gildenmitglied %s!"
 user_guildmate_logoff = de \
    "~IDein Gildenmitglied %s hat sich gerade verabschiedet."
 user_safety_on = de \
-   "### Deine Sicherheit ist ~B~gAKTIVIERT~n: Du kannst keine Unschuldigen "
+   "### Deine Sicherung ist ~B~gAKTIVIERT~n: Du kannst keine Unschuldigen "
    "angreifen."
 user_safety_off = de \
-   "### Deine Sicherheit ist ~B~rDEAKTIVIERT~n: Sei vorsichtig, Du kannst "
+   "### Deine Sicherung ist ~B~rDEAKTIVIERT~n: Sei vorsichtig, Du kannst "
    "jetzt andere Spieler verletzen!"
 user_temp_safe_on = de \
    "~B~U~k[###]~n ~B~vDu bekommst einen temporären Schutzengel."
@@ -219,7 +219,7 @@ user_couldnt_replace = de \
    "Du konntest nicht zu Deinem Ausgangsort zurückkehren."
 user_logon = de \
    "~BWillkommen auf Server 112 - der Offizielle Meridian 59 Server in Deutschland! "
-   "(Tippe \"Hilfe\", um weitere Informationen rund um die Welt von Meridian59 zu "
+   "~n(Tippe \"Hilfe\", um weitere Informationen rund um die Welt von Meridian59 zu "
    "erhalten). "
 user_goto_lastsaferoom = de \
    "Du wurdest an den letzten sicheren Ort geschickt, den du besucht hast."
