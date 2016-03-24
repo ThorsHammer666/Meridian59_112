@@ -103,7 +103,7 @@ player_reached_maxtraining = de \
 player_gained_training = de "Du hast ~B%i~B Trainingspunkte dazu bekommen!"
 player_spent_training = de "Du hast ~B%i~B Trainingspunkte benutzt!"
 player_logon_bonus = de \
-   "Du hast deinen täglichen Trainingspunkte Bonus in Höhe von ~B%i~B Punkten bekommen.  "
+   "Du hast deinen täglichen Trainingspunkte Bonus in Höhe von ~B%i~B Punkten bekommen. "
    "Komm morgen wieder, um mehr davon zu bekommen!"
 player_health_gain_maxed = de \
    "Deine Lebensenergie kann sich nicht weiter erhöhen."
@@ -243,7 +243,7 @@ player_newbie_commands = de \
    "~BGrundlegende Befehle für Meridian 59:~B\n~IBenutze diese Maus- und Tastaturbefehle, "
    "um mit der Welt zu interagieren.\nDiese beziehen sich auf die Standardbelegung "
    "der Tasten. Du kannst die Belegung jederzeit ändern unter~I ~wSpiel > "
-   "Konfiguration.~rRechtsklick auf ein Objekt~b - untersucht ein Object "
+   "Konfiguration.\n~rRechtsklick auf ein Objekt~b - untersucht ein Object "
    "und lässt Dich nähere Details betrachten. \nKlicke rechts auf das Schild "
    "in diesem Raum um mehr zu erfahren.\n~rLeertaste~b - gehe durch Türen, "
    "wie die blaue Tür im Norden.\n~rE-Taste~b - greife Monster an. Vielleicht "

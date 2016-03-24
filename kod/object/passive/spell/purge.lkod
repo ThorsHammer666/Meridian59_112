@@ -4,7 +4,7 @@ Purge_desc_rsc = de \
    "und lila Pilze. "
 Purge_on = de \
    "Ein breites Licht versucht all deine Personenzauber zu beseitigen"
-Purge_not_enchanted = de "%s%s ist nicht mit Personenzaubern belegt"
+Purge_not_enchanted = de "%s%s ist nicht mit Personenzauber belegt."
 Purge_spell_intro = de \
    "Shal'ill Level 5: Streift hilfreiche persönliche Verzauberungen vom Ziel "
    "ab"
