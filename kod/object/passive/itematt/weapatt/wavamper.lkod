@@ -2,9 +2,9 @@ weapattVamper_desc = de \
    " Ein unheiliges Glühen scheint alles Leben aus der Luft um die Waffe zu "
    "ziehen und ein Hauch von Nols Wahnsinn weht durch Deinen Geist."
 Vamper_dm = de "Vamper"
-Vamper_fail_use = de 
+Vamper_fail_use = de \
    "%s%s entgleitet Deinen Händen, da Du noch nicht weit genug bist diese "
-   "Waffe zu benutzen.."
+   "Waffe zu benutzen."
 Vamper_fail_use_karma = de \
    "Du bist nicht unheilig genug, um diese teuflische Waffe zu führen."
 vamper_worked = de "%s%s schaudert, während %s herausgesaugt wird!"

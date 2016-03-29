@@ -7,7 +7,7 @@ fire_only_missile_weapon = de \
    "Du kannst Zielen nur in Verbindung mit einem Bogen anwenden."
 fire_need_weapon = de \
    "Du musst einen Bogen in den Händen halten, um damit auf jemanden zu schießen."
-fire_wrong_ammo = de %s%s benötigt noch die passende Munition."
+fire_wrong_ammo = de "%s%s benötigt noch die passende Munition."
 fire_new_ammo = de \
    "Du greifst nach einem Deiner Pfeile und spannst Deinen Bogen."
 fire_skill_intro = de \
