@@ -216,6 +216,11 @@
 #define IDS_CANTGETFILESIZE             188
 #define IDS_FORUMURL                    189
 #define IDS_WIKIURL                     190
+#define IDS_JSONERROR                   191
+#define IDC_SIZE_UPDATE_ONE_FILE        192
+#define IDC_SIZE_UPDATE_FILES_BYTES     193
+#define IDC_SIZE_UPDATE_FILES_KB        194
+#define IDC_SIZE_UPDATE_FILES_MB        195
 #define IDC_PORTNUM                     1000
 #define IDC_HOST                        1001
 #define IDC_ITEMLIST                    1002
@@ -371,6 +376,7 @@
 #define IDC_AGELABEL2                   1172
 #define IDC_PROFANE                     1173
 #define IDC_RADIO1                      1174
+#define IDC_XP_AS_PERCENT               1174
 #define IDC_RADIO2                      1175
 #define IDC_EDIT1                       1176
 #define IDC_BUTTON1                     1177
@@ -473,7 +479,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        191
+#define _APS_NEXT_RESOURCE_VALUE        196
 #define _APS_NEXT_COMMAND_VALUE         3518
 #define _APS_NEXT_CONTROL_VALUE         1217
 #define _APS_NEXT_SYMED_VALUE           105

@@ -199,6 +199,10 @@ classvars:
 
    viPersonal_ench = TRUE
 
+   // Whether the spell does area effects which include room enchantments,
+   // radius enchantments and ranged attack that effect multiple targets.
+   vbIsAreaEffect = FALSE
+
    % If true, newbies cannot target other players with this spell.
    viNoNewbieOffense = FALSE
 
@@ -1692,6 +1696,21 @@ messages:
       return $;
    }
 
+   GetTrueManaCost()
+   {
+      return viMana;
+   }
+
+   GetTrueExertion()
+   {
+      return viSpellExertion;
+   }
+
+   GetPrimaryImproveChance()
+   {
+      return viChance_To_Increase;
+   }
+
    GetManaCost(who=$,iSpellPower=0,bItemCast=FALSE)
    "Returns number of magic points needed to cast spell"
    {
@@ -2065,6 +2084,11 @@ messages:
       iPercent = 150 - iSpellPower;   
       
       return (viCast_time*iPercent)/100;
+   }
+
+   GetRawTranceTime()
+   {
+      return viCast_time;
    }
 
    GetPostCastDelay()
@@ -2609,6 +2633,11 @@ messages:
    "in status."
    {
       return FALSE;
+   }
+
+   IsAreaEffect()
+   {
+      return vbIsAreaEffect;
    }
 
 end
