@@ -15,7 +15,7 @@ BarloqueCourt_sign_desc = de \
    "1) Jeder Bürger kann den gesetzlichen Status eines jeden Bürgers abrufen. Dazu "
    "musst du lediglich den Namen des Bürgers laut sagen."
    "\n\n"
-   "2) Du kannst eine Begnadigung beantragen (Als Gesetzesloser oder Mörder). "
+   "2) Du kannst eine Begnadigung beantragen (Nur als Mörder). "
    "Jeder Mörder, der nach einer \"Reduktion\" seines gesetzeslosen Titels fragt, kann eine "
    "große Summe Geld direkt an Caramo zahlen. Die Begnadigung tritt sofort in Kraft."
    "\n\n"
