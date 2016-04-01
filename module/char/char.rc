@@ -495,7 +495,7 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_FAVORITES           "http://wiki.openmeridian.org/index.php/Character_Builds_Document"
+    IDS_FAVORITES           "http://wiki.meridian59.de/"
 END
 
 #endif    // English (United States) resources
