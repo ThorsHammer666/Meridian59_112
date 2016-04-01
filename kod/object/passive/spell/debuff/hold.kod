@@ -60,7 +60,7 @@ properties:
    piBaseDuration = 2000 // 103 value 2000.
    piSpellPowerModifier = 30 // 103 value 40.
    piDeviation = 10 // 103 value 50%.
-   viCast_time = 600 // 103 value 0 (milliseconds).
+   viCast_time = 0 // 103 value 0 (milliseconds).
 
 messages:
 
