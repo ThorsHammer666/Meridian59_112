@@ -371,7 +371,6 @@ resources:
    user_news_subject_toobig = \
       "Your newsglobe subject length was too long."
 
-   user_guild_rsc = "guild"
    user_guildofficer_rsc = "guildofficer"
 
    user_default_url = "https://www.Meridian59.de/"
@@ -1752,7 +1751,7 @@ messages:
    "appropriate. This function will force a suicide and clean up anything, "
    "ignoring game rules."
    {
-      local sName;
+      local oObj, sName;
 
       Send(self,@CancelIfOffer);
 
@@ -1763,11 +1762,20 @@ messages:
          Send(self,@PerformGuildDisband);
       }
 
-      piLast_Restart_time = getTime();
+      oObj = Send(SYS,@GetCaramo);
+      if (Send(oObj,@GetJusticar) = self)
+      {
+         // Justicar must give up office.
+         Send(oObj,@SetJusticar,#who=$);
+      }
+
+      piLast_Restart_time = GetTime();
       piLastLoginTime = 0;
       psUrl = $;
       plHonor = $;
       piLogoffPenaltyCount = -1;
+      piXP_total = 0;
+      piTraining_points = 0;
 
       if pbLogged_on
       {
@@ -1804,6 +1812,13 @@ messages:
       if IsClass(poOwner,&OutOfGrace)
       {
          Send(self,@MsgSendUser,#message_rsc=user_cant_suicide_OOG);
+
+         return;
+      }
+
+      if Send(Send(SYS,@GetCaramo),@GetJusticar) = self
+      {
+         Send(self,@MsgSendUser,#message_rsc=user_cant_suicide_justicar);
 
          return;
       }
@@ -3976,27 +3991,27 @@ messages:
 
    UserAppeal(string = $, first_time = FALSE)
    {
-      local i, lUsers;
+      local i;
 
-      lUsers = Send(SYS,@GetUsersLoggedOn);
-      foreach i in lUsers
+      foreach i in Send(SYS,@GetUsersLoggedOn)
       {
-         if IsClass(i,&DM) AND Send(i,@IsAppealOn)
+         if (first_time)
          {
-            if NOT first_time
-            {
-               Send(i,@MsgSendUser,#message_rsc=user_appeal,#parm1=vrName,
-                    #parm2=string);
-            }
-            else
+            if (Send(SETTINGS_OBJECT,@MessageAllForNewUser)
+               OR (IsClass(i,&DM) AND Send(i,@IsAppealOn)))
             {
                Send(i,@MsgSendUser,#message_rsc=user_first_time_appeal,
-                    #parm1=vrName);
+                     #parm1=vrName);
             }
+         }
+         else if (IsClass(i,&DM) AND Send(i,@IsAppealOn))
+         {
+            Send(i,@MsgSendUser,#message_rsc=user_appeal,#parm1=vrName,
+                  #parm2=string);
          }
       }
 
-      if IsClass(self,&DM) OR first_time
+      if first_time OR IsClass(self,&DM)
       {
          % Don't tell DMs and Admins that the appeal was heard,
          %  since this is always true.
@@ -5048,7 +5063,7 @@ messages:
 
       if type = SAY_MESSAGE
       {
-         if Send(self,@IsActor)
+         if IsClass(self,&DM)
          {
             Send(poOwner,@SomeoneSaidRoom,#what=self,#type=type,
                  #string=user_echo_str,#parm1=string);
@@ -5726,14 +5741,14 @@ messages:
    {
       local oUser, lNames, oMailingList;
 
-      if StringEqual(string,user_guild_rsc)
+      if StringEqual(string,system_guild_rsc)
          AND poGuild <> $
       {
          AddPacket(4,poGuild);
       }
       else
       {
-         % don't enable mailing lists yet
+         // TODO: enable guild officer mailing lists.
          if FALSE AND StringEqual(string,user_guildofficer_rsc)
             AND poGuild <> $
          {
@@ -8420,22 +8435,13 @@ messages:
 
    SendStatCapacity()
    {
-      local iCapacity_send, iMaxCapacity_send;
+      local iCapacity_send;
 
       iCapacity_send = Send(self,@GetWeightHold);
 
-      % GetWeightMax returns NIL in dm.kod, 3100 is capacity at 70 might
-      if IsClass(self,&DM)
-      {
-         iMaxCapacity_send = 3100;
-      }
-      else
-      {
-         iMaxCapacity_send = Send(self,@GetWeightMax);
-      }
-
       AddPacket(1,9, 4,user_stat_capacity, 1,STAT_VALUE, 1,STAT_INTEGER,
-                4,iCapacity_send, 4,0, 4,iMaxCapacity_send, 4,iCapacity_send);
+                4,iCapacity_send, 4,0, 4,Send(self,@GetWeightMax),
+                4,iCapacity_send);
 
       return;
    }
@@ -8454,22 +8460,12 @@ messages:
    
    SendStatBulk()
    {
-      local iBulk, iBulkMax;
+      local iBulk;
 
       iBulk = Send(self,@GetBulkHold);
 
-      % GetBulkMax returns NIL in dm.kod, 3100 is capacity at 70 might
-      if IsClass(self,&DM)
-      {
-         iBulkMax = 3100;
-      }
-      else
-      {
-         iBulkMax = Send(self,@GetBulkMax);
-      }
-
       AddPacket(1,10, 4,user_stat_bulk, 1,STAT_VALUE, 1,STAT_INTEGER,
-                4,iBulk, 4,0, 4,iBulkMax, 4,iBulk);
+                4,iBulk, 4,0, 4,Send(self,@GetBulkMax), 4,iBulk);
 
       return;
    }
@@ -9639,11 +9635,6 @@ messages:
       return;
    }
 
-   IsActor()
-   {
-      return FALSE;
-   }
-
    LeaveNewbieOrGuestRegion()
    {
       % Delete their inventory?
@@ -10333,10 +10324,9 @@ messages:
                      riija_lvl=0,jala_lvl=0,weaponcraft_lvl=0)
    "Processes a stat change request from the client"
    {
-      local i,lSpellLevels,lSkillLevels,lSpellLevels_new,lSkillLevels_new,
-            totalLevels,totalSchools,totalLvlOnes,iPrimaryStat,
-            oSpell,iSpellAbility,iSpellNum,
-            oSkill,iSkillAbility,iSkillNum;
+      local i, lSpellLevels, lSkillLevels, lSpellLevels_new, lSkillLevels_new,
+            totalLevels, totalSchools, totalLvlOnes, iPrimaryStat, oSpell,
+            iSpellAbility, iSpellNum, oSkill, iSkillAbility, iSkillNum;
 
       % if stats reset is turned off, ignore the request
       if NOT Send(SETTINGS_OBJECT,@GetStatsResetEnabled)
@@ -10587,37 +10577,15 @@ messages:
          piMight, piIntellect, piStamina, piAgility, piMysticism, piAim,
          " to ", might, intellect, stamina, agility, mysticism, aim);
 
-      // Now set the stats. If they are changing stamina, and they have extra
-      // levels (XP) above their max HP, have to reset XP to their current
-      // level.
-      if (piStamina <> stamina
-         AND piBase_Max_Health > Send(self,@GetBaseMaxHealth))
-      {
-         Send(self,@ResetXPToLevel);
-      }
+      // Change stamina and check HP in a separate message, number of
+      // locals is getting too high in this one.
+      Send(self,@UserStatChangeStamina,#stamina=stamina);
 
-      piStamina = stamina;
       piIntellect = intellect;
       piMight = might;
       piAgility = agility;
       piMysticism = mysticism;
       piAim = aim;
-
-      // A change in stamina results in a reduction in hitpoints if the
-      // player's hitpoints will be > 100 + new Stamina
-      if (piBase_Max_Health > 100 + piStamina + Bound(piStaminaMod,0,$))
-      {
-         // If they dropped stamina, set max HP to their max. This can
-         // remove extra invisible 'levels', so players at max HP should
-         // not modify their stamina.
-         piBase_Max_Health = 100 + piStamina + Bound(piStaminaMod,0,$);
-         Send(self,@NewHealth);
-
-         // Check XP again.
-         Send(self,@ResetXPToLevel);
-
-         Debug("HitPoints and XP Adjusted");
-      }
 
       % recalculate mana pool based on nodes and mysticism
       Send(self,@ComputeMaxMana);
@@ -10628,6 +10596,35 @@ messages:
       % Refresh the client screen so they see the new stats
       Send(self, @InvalidateData);
       Debug("Player Updated!");
+
+      return;
+   }
+
+   UserStatChangeStamina(stamina = $)
+   {
+      local iMaxHP, iNewMaxHP;
+
+      if (stamina = $)
+      {
+         Debug("UserStatChangeStamina sent $ stamina for ",self);
+
+         return;
+      }
+
+      // Get the old max HP before adjusting stamina.
+      iMaxHP = Send(self,@GetBaseMaxHealth);
+
+      piStamina = stamina;
+
+      iNewMaxHP = Send(self,@GetBaseMaxHealth);
+
+      // Set their max health to the correct level.
+      if (iMaxHP <> iNewMaxHP)
+      {
+         Send(self,@GainMaxHealth,#amount=iNewMaxHP - iMaxHP);
+         Send(self,@NewHealth);
+         Debug("HP Recalculated");
+      }
 
       return;
    }

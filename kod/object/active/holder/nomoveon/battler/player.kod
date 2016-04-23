@@ -321,7 +321,7 @@ resources:
    player_dot = "."
 
    % Master fixed info resource.
-   player_fixed_info = "%r%r%s%r%s%q%r"
+   player_fixed_info = "%r%r%s%s%r%s%q%r"
 
    % Hometown strings.
    player_hometown_rsc = "%s%s%s%q%s\n"
@@ -345,7 +345,7 @@ resources:
    player_is_wearing = "%s is wearing %s%s.\n"
    player_donation_title = "Noble benefactor of Meridian in %q."
    player_donation_separator = ", "
-   player_is_justicar = "Elected Royal Justicar of the Meridian."
+   player_is_justicar = "Elected Royal Justicar of the Meridian.\n"
 
    player_known_for_mastery = "Known far and wide for mastery of "
    player_and = " and "
@@ -784,7 +784,7 @@ resources:
    player_truced = "Shal'ille's magic compels you to respect the truce."
 
    Jig_cannot_attack = \
-      "It wouldn't feel right to attack the %s while you two are "
+      "It wouldn't feel right to attack %s%s while you two are "
       "dancing so well together!"
 
    phased_out_cant_use = \
@@ -1210,6 +1210,18 @@ messages:
    }
 
    %%% Player flags
+
+   SetDMFlag()
+   {
+      Debug("Tried to set DM flag on player ",Send(self,@GetTrueName));
+
+      return;
+   }
+
+   CheckDMFlag()
+   {
+      return 0;
+   }
 
    SetPlayerFlag(flag=0,value=FALSE,flagset=1)
    "This always requires the POSITIVE flag name."
@@ -2087,6 +2099,17 @@ messages:
          AddPacket(4,system_blank_resource);
       }
 
+      obj = Send(SYS,@GetCaramo);
+      if (obj <> $
+         AND Send(obj,@GetJusticar) = self)
+      {
+         AddPacket(4, player_is_justicar);
+      }
+      else
+      {
+         AddPacket(4,system_blank_resource);
+      }
+
       %
       % Add visible cargo types. The number of these doesn't really change,
       % but this section has error checking anyway just in case we change it.
@@ -2136,12 +2159,12 @@ messages:
             {
                if IsClass(obj,&Ring)
                {
-                  AddPacket(4,player_is_wearing, 4,Send(self,@GetHeShe,#cap=True),
+                  AddPacket(4,player_is_wearing, 4,Send(self,@GetHeShe,#cap=TRUE),
                             4,Send(obj,@GetIndef), 4,Send(obj,@GetName));
                }
                else
                {
-                  AddPacket(4,player_is_holding, 4,Send(self,@GetHeShe,#cap=True),
+                  AddPacket(4,player_is_holding, 4,Send(self,@GetHeShe,#cap=TRUE),
                             4,Send(obj,@GetIndef), 4,Send(obj,@GetName));
                }
             }
@@ -2253,7 +2276,7 @@ messages:
 
    UserLogonHook()
    {
-      local i, oGame, oParl, iBonus, iDefaultBonus, iTimespan;
+      local i, oObj, iBonus, iDefaultBonus, iTimespan;
 
       SendList(plPassive, 0, @UserLogon);
       SendList(plActive, 0, @UserLogon);
@@ -2264,11 +2287,11 @@ messages:
 
       Send(self,@SendUserAllWindowOverlays);
 
-      oParl = Send(SYS,@GetParliament);
-      if oParl <> $
+      oObj = Send(SYS,@GetParliament);
+      if oObj <> $
       {
          if piFaction <> FACTION_NEUTRAL 
-            AND (NOT Send(oParl,@IsShutdown))
+            AND (NOT Send(oObj,@IsShutdown))
          {
             piFactionTimeUpdated=GetTime();
             Send(self,@FactionServiceTimer);
@@ -2276,17 +2299,23 @@ messages:
 
          if Send(self,@PlayerIsIntriguing)
          {
-            Send(oParl,@UpdateEffects,#who=self); 
+            Send(oObj,@UpdateEffects,#who=self); 
          }
       }
 
-      oGame = Send(SYS,@GetAssassinGame);
-      if oGame <> $
-         AND Send(oGame,@InAcceptMode)
-         AND (NOT Send(oGame,@IsCombatant,#who=self))
-         AND Send(oGame,@IsAdvertised,#who=self)
+      oObj = Send(SYS,@GetAssassinGame);
+      if oObj <> $
+         AND Send(oObj,@InAcceptMode)
+         AND (NOT Send(oObj,@IsCombatant,#who=self))
+         AND Send(oObj,@IsAdvertised,#who=self)
       {
          Send(self,@MsgSendUser,#message_rsc=player_assgame_soon);
+      }
+
+      oObj = Send(SYS,@GetCaramo);
+      if oObj <> $
+      {
+         Send(oObj,@UserLogon,#who=self);
       }
 
       if poGuild <> $
@@ -2333,14 +2362,14 @@ messages:
       % Reward people for logging on by granting them some free training points!
       % We take the absolute value to automatically fix bugs with people
       % mysteriously ending up with a timestamp in the distant future.
-      iTimespan = abs(GetTime() - piReward_timestamp);
+      iTimespan = Abs(GetTime() - piReward_timestamp);
 
       % We restrict the timespan to reasonable limits here since the bonus to
       % training points scales with the time since the last bonus has been
       % received. 36 hours means that players have a decent leeway to log on
       % again before missing out on training points, but are still encouraged
       % to log on daily to cash in maximum points.
-      iTimespan = bound(iTimespan,0,36*60*60);
+      iTimespan = Bound(iTimespan,0,36*60*60);
 
       if iTimespan > 16*60*60
       {
@@ -2351,11 +2380,11 @@ messages:
 
          % Retrieve the daily logon bonus from settings.
          iDefaultBonus = Send(SETTINGS_OBJECT,@GetLogonBonus);
-         
+
          % Scale the logon bonus with the time that has passed since it has last
          % been received for a total bonus of up to 150 percent.
          iBonus = iDefaultBonus * iTimespan / (24*60*60);
-         
+
          Send(self,@MsgSendUser,#message_rsc=player_logon_bonus,#parm1=iBonus);
          Send(self,@AddTrainingPoints,#points=iBonus,#report=FALSE);
 
@@ -3129,21 +3158,13 @@ messages:
 
    GetBaseMaxHealth()
    {
-      local iApparentStamina;
+      local iStamina;
 
-      if piStaminaMod >= 0
-      {
-         iApparentStamina = Send(self,@GetStamina);
-      }
-      else
-      {
-         iApparentStamina = Send(self,@GetRawStamina);
-      }
+      iStamina = Send(self,@GetStamina);
 
       // Bound twice - once for max HP this player can get, once for
       // max HP allowable by the game.
-      return Bound(Bound(piBase_max_health,MIN_HP,(100 + iApparentStamina)),
-                  MIN_HP,MAX_HP);
+      return Bound(Bound(piBase_max_health,MIN_HP,100 + iStamina),MIN_HP,MAX_HP);
    }
 
    GetUncappedBaseMaxHealth()
@@ -4406,7 +4427,7 @@ messages:
             if report
             {
                Send(self,@MsgSendUser,#message_rsc=Jig_cannot_attack,
-                     #parm1=Send(victim,@GetName));
+                     #parm1=Send(victim,@GetDef),#parm2=Send(victim,@GetName));
             }
 
             return FALSE;
@@ -4856,7 +4877,7 @@ messages:
             else
             {
                Send(self,@MsgSendUser,#message_rsc=Jig_cannot_attack,
-                     #parm1=Send(what,@GetName));
+                     #parm1=Send(what,@GetDef),#parm2=Send(what,@GetName));
 
                return FALSE;
             }
@@ -8756,6 +8777,11 @@ messages:
       return;
    }
 
+   CanPlayerAdvanceOnMe()
+   {
+      return (Send(self,@FindUsing,#class=&Token) = $);
+   }
+
    AdvancementCheck(what=$,killing_blow=TRUE,group_member_kill=FALSE,group_member=$)
    "A player will need, on average, to kill a number of monsters equal to"
    "their maxhealth to gain a HP.  This number is reduced by the player's"
@@ -8997,7 +9023,7 @@ messages:
    "FALSE otherwise.  The iLevel parameter has the player's base max HP "
    "taken from it, then divided by 5 before being bound between 1 and 10."
    {
-      local bGainHP, iMaxHealth, oShrunken, iApparentStamina;
+      local bGainHP, iMaxHealth, oShrunken, iStamina;
 
       bGainHP = FALSE;
 
@@ -9041,18 +9067,11 @@ messages:
 
          // If they are at max HP, award some training points instead.
          // Awards the TP when the player hits max HP also (reward!).
-         if (piStaminaMod >= 0)
-         {
-            iApparentStamina = Send(self,@GetStamina);
-         }
-         else
-         {
-            iApparentStamina = Send(self,@GetRawStamina);
-         }
+         iStamina = Send(self,@GetStamina);
 
          iMaxHealth = Send(self,@GetBaseMaxHealth);
 
-         if (iMaxHealth >= 100 + iApparentStamina
+         if (iMaxHealth >= 100 + iStamina
             OR iMaxHealth >= MAX_HP)
          {
             Send(self,@AddTrainingPoints,#points=iMaxHealth * 3,#bCap=FALSE);
@@ -11320,7 +11339,7 @@ messages:
 
    AddMight(points = 0, bAbsolute = TRUE)
    "Returns signed change to might (negative means decrease)"
-   "If restore = TRUE, ignore the bounds check and add the amount anyway."
+   "If bAbsolute = TRUE, ignore the bounds check and add the amount anyway."
    {
       local iOrigMight;
 
@@ -11329,7 +11348,7 @@ messages:
 
       if NOT bAbsolute
       {
-         piMightMod = bound(piMightMod,-piMight,(MAXIMUM_STAT-piMight));
+         piMightMod = Bound(piMightMod,-piMight,(MAXIMUM_STAT-piMight));
       }
 
       Send(self,@DrawMight);
@@ -11340,7 +11359,7 @@ messages:
 
    AddIntellect(points = 0, bAbsolute = TRUE)
    "Returns signed change to intellect (negative means decrease)"
-   "If restore = TRUE, ignore the bounds check and add the amount anyway."
+   "If bAbsolute = TRUE, ignore the bounds check and add the amount anyway."
    {
       local iOrigIntellect;
 
@@ -11349,7 +11368,7 @@ messages:
 
       if NOT bAbsolute
       {
-         piIntellectMod = bound(piIntellectMod,-piIntellect,(MAXIMUM_STAT-piIntellect));
+         piIntellectMod = Bound(piIntellectMod,-piIntellect,(MAXIMUM_STAT-piIntellect));
       }
 
       Send(self,@DrawIntellect);
@@ -11359,7 +11378,7 @@ messages:
 
    AddAim(points = 0, bAbsolute = TRUE)
    "Returns signed change to aim (negative means decrease)"
-   "If restore = TRUE, ignore the bounds check and add the amount anyway."
+   "If bAbsolute = TRUE, ignore the bounds check and add the amount anyway."
    {
       local iOrigAim;
 
@@ -11368,7 +11387,7 @@ messages:
 
       if NOT bAbsolute
       {
-         piAimMod = bound(piAimMod,-piAim,(MAXIMUM_STAT-piAim));
+         piAimMod = Bound(piAimMod,-piAim,(MAXIMUM_STAT-piAim));
       }
 
       Send(self,@DrawAim);
@@ -11379,16 +11398,27 @@ messages:
 
    AddStamina(points = 0, bAbsolute = TRUE)
    "Returns signed change to stamina (negative means decrease)"
-   "If restore = TRUE, ignore the bounds check and add the amount anyway."
+   "If bAbsolute = TRUE, ignore the bounds check and add the amount anyway."
    {
-      local iOrigStamina;
+      local iOrigStamina, iMaxHP, iNewMaxHP;
+
+      iMaxHP = Send(self,@GetBaseMaxHealth);
 
       iOrigStamina = piStaminaMod;
       piStaminaMod = piStaminaMod + points;
 
       if NOT bAbsolute
       {
-         piStaminaMod = bound(piStaminaMod,-piStamina,(MAXIMUM_STAT-piStamina));
+         piStaminaMod = Bound(piStaminaMod,-piStamina,(MAXIMUM_STAT-piStamina));
+      }
+
+      iNewMaxHP = Send(self,@GetBaseMaxHealth);
+
+      // Set their max health to the correct level.
+      if (iMaxHP <> iNewMaxHP)
+      {
+         Send(self,@GainMaxHealth,#amount=iNewMaxHP - iMaxHP);
+         Send(self,@NewHealth);
       }
 
       Send(self,@DrawStamina);
@@ -11398,7 +11428,7 @@ messages:
 
    AddAgility(points = 0, bAbsolute = TRUE)
    "Returns signed change to agility (negative means decrease)"
-   "If restore = TRUE, ignore the bounds check and add the amount anyway."
+   "If bAbsolute = TRUE, ignore the bounds check and add the amount anyway."
    {
       local iOrigAgility;
 

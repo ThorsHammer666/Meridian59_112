@@ -59,7 +59,7 @@ properties:
    pbStatsResetEnabled = TRUE
    piStatsResetPenalty = -2
    piFreeStatsResetCap = 19
-   piStatResetTokenLife = 2
+   piStatResetTokenLife = 40
 
    % Stat reset token has a 1 in (piStatResetTokenDropFactor / monster_level)
    % chance to drop, with monster_level bound between 50 and 150.
@@ -87,9 +87,6 @@ properties:
    % How far up the food chain can basic players learn?  See player for more
    %  specific information on what this number means.
    piMaxLearnPoints = 16
-
-   % Do building group member kills allow tougher rolls?
-   pbGroupToughers = FALSE
 
    % The default time for building group membership.
    piDefaultGroupTime = 60000
@@ -232,10 +229,6 @@ properties:
    % Revenant speed setting
    piRevSpeed = 18
 
-   % Alternate Justicar system - buying a pardon with an indulgence
-   % is now possible for a flat fee (initially 1 million).
-   piPardonIndulgenceCost = 1000000
-
    % The divisor for all skill post-softcap imp rates. Higher means harder.
    % One means softcaps don't matter at all.
    piSkillSoftcapPenalty = 5
@@ -256,9 +249,6 @@ properties:
    % Percent of mana required/used for broadcasting. Default 0 (no cost).
    piBroadcastManaPercent = 0
 
-   % Jasper vault access
-   pbJasperVault = TRUE
-
    % Chance for stormy weather
    piStormChance = 15
 
@@ -274,6 +264,12 @@ properties:
    // Determines whether players lose faction for attacking each other
    // in a way that requires turning safety off.
    pbFactionLoss = FALSE
+
+   // Do all users get "logged on for first time" messages?
+   pbMsgAllForNewUser = FALSE
+
+   // Do soldiers attack all factioned players?
+   pbTroopsAttackNonShielded = FALSE
 
 messages:
 
@@ -445,11 +441,6 @@ messages:
    GetMaxLearnPoints()
    {
       return piMaxLearnPoints;
-   }
-
-   GetGroupTougherSetting()
-   {
-      return pbGroupToughers;
    }
 
    GetDefaultGroupTime()
@@ -650,11 +641,6 @@ messages:
       return piRevSpeed;
    }
 
-   GetPardonIndulgenceCost()
-   {
-      return piPardonIndulgenceCost;
-   }
-
    GetSkillSoftcapPenalty()
    {
       return piSkillSoftcapPenalty;
@@ -685,11 +671,6 @@ messages:
       return piBroadcastManaPercent;
    }
 
-   JasperVaultOpen()
-   {
-      return pbJasperVault;
-   }
-
    GetStormChance()
    {
       return piStormChance;
@@ -713,6 +694,16 @@ messages:
    FactionLossEnabled()
    {
       return pbFactionLoss;
+   }
+
+   MessageAllForNewUser()
+   {
+      return pbMsgAllForNewUser;
+   }
+
+   TroopsAttackNonShielded()
+   {
+      return pbTroopsAttackNonShielded;
    }
 
 end
