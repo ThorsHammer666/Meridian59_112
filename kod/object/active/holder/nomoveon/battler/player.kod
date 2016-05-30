@@ -1160,7 +1160,10 @@ messages:
 
       if ptTempSafe <> $
       {
-         DeleteTimer(ptTempSafe);
+         if (IsTimer(ptTempSafe))
+         {
+            DeleteTimer(ptTempSafe);
+         }
          ptTempSafe = $;
       }
 
@@ -2325,8 +2328,7 @@ messages:
 
       if ptTempSafe <> $
       {
-         piFlags = piFlags | PFLAG_TEMPSAFE;
-         Send(self,@MsgSendUser,#message_rsc=player_temp_safe);
+         Send(self,@UnpauseTempSafe);
       }
 
       if piPoisonStrength > 0
@@ -2443,6 +2445,11 @@ messages:
          ptReward_timer = $;
       }
 
+      if (ptTempSafe <> $)
+      {
+         Send(self,@PauseTempSafe);
+      }
+
       Send(self,@CancelRescue);
 
       % Tell others that we're leaving
@@ -2551,7 +2558,6 @@ messages:
          AND iHair_translation <> PT_GRAY_TO_KGRAY
          AND iHair_translation <> PT_GRAY_TO_BLACK
          AND iHair_translation <> PT_GRAY_TO_BLOND
-         AND iHair_translation <> PT_GRAY_TO_LSKY
       {
          % if they hacked char.dll...
          iHair_translation = PT_GRAY_TO_BLOND;
@@ -2770,6 +2776,7 @@ messages:
       % Give them a new start on life, so that their newbie
       % friends can buff and heal them.
       piTimeAttackedPlayer = 0;
+      piTimeAttackedByPlayer = 0;
 
       return;
    }
@@ -4617,18 +4624,15 @@ messages:
                   Send(self,@MsgSendUser,#message_rsc=player_guardian_angel,
                        #parm1=Send(victim,@GetDef),#parm2=Send(victim,@GetName));
                }
+               else if minion
+               {
+                  Send(self,@MsgSendUser,#message_rsc=player_safety_caught_minion,
+                        #parm1=Send(victim,@GetDef),#parm2=Send(victim,@GetName));
+               }
                else
                {
-                  if minion
-                  {
-                     Send(self,@MsgSendUser,#message_rsc=player_safety_caught_minion,
-                           #parm1=Send(victim,@GetDef),#parm2=Send(victim,@GetName));
-                  }
-                  else
-                  {
-                     Send(self,@MsgSendUser,#message_rsc=player_safety_caught,
-                           #parm1=Send(victim,@GetDef),#parm2=Send(victim,@GetName));
-                  }
+                  Send(self,@MsgSendUser,#message_rsc=player_safety_caught,
+                        #parm1=Send(victim,@GetDef),#parm2=Send(victim,@GetName));
                }
             }
 
@@ -4829,6 +4833,7 @@ messages:
       if NOT Send(poOwner,@LineOfSight,#obj1=self,#obj2=what)
       {
          Send(self,@MsgSendUser,#message_rsc=player_attack_not_in_view);
+
          return FALSE;
       }
 
@@ -4867,21 +4872,17 @@ messages:
          {
             return FALSE;
          }
-         else
-         {
-            if NOT Send(self,@IsAffectedByRadiusEnchantment,#byClass=&Jig)
-            {
-               % Tell the monster this is a valid attack.
-               Send(what,@ValidAttack,#who=self);
-            }
-            else
-            {
-               Send(self,@MsgSendUser,#message_rsc=Jig_cannot_attack,
-                     #parm1=Send(what,@GetDef),#parm2=Send(what,@GetName));
 
-               return FALSE;
-            }
+         if Send(self,@IsAffectedByRadiusEnchantment,#byClass=&Jig)
+         {
+            Send(self,@MsgSendUser,#message_rsc=Jig_cannot_attack,
+                  #parm1=Send(what,@GetDef),#parm2=Send(what,@GetName));
+
+            return FALSE;
          }
+
+         % Tell the monster this is a valid attack.
+         Send(what,@ValidAttack,#who=self);
       }
 
       % Checking for legal PK attack here.
@@ -4893,17 +4894,9 @@ messages:
 
       % If this attack initiates pvp, notify victim (combatants maybe?) 
       % initially, but then not again until PVP_NOTIFY_DECAY has passed
-      
-      if IsClass(what,&User) 
-         AND Send(what, @GetLastPvpWarned) < GetTime() - PVP_NOTIFY_DECAY
+      if IsClass(what,&User)
       {
          Send(what,@DoPvpNotify);
-      }
-      
-      % Special stroke stuff 
-      if NOT Send(stroke_obj,@CheckSpecial,#who=self,#victim=what)
-      {
-         return FALSE;
       }
 
       % Okay, checking is done, attack is okay.  Do the animation thing.
@@ -6918,13 +6911,10 @@ messages:
             ptHealth = CreateTimer(self,@HealthTimer,Send(self,@CalculateHealthTime));
          }
       }
-      else
+      else if piHealth = piMax_health * 100
       {
-         if piHealth = piMax_health*100
-         {
-            DeleteTimer(ptHealth);
-            ptHealth = $;
-         }
+         DeleteTimer(ptHealth);
+         ptHealth = $;
       }
 
       Send(self,@DrawHealth);
@@ -7048,19 +7038,19 @@ messages:
 
       if number = $
       {
-         number = length(nodelist);
+         number = Length(nodelist);
       }
 
       count = 1;
 
-      while nodelist >=1
+      while nodelist >= 1
       {
          if ((nodelist/2)*2) <> nodelist  %we do an "# was odd" operator
          {
             Send(Send(SYS,@FindNodeByNum,#num=count),@UnMeld,#who=self);
          }
-         count = count*2;
-         nodelist = nodelist/2;
+         count = count * 2;
+         nodelist = nodelist / 2;
       }
 
       Send(self,@ResetNodeList);
@@ -7078,7 +7068,6 @@ messages:
          return;
       }
 
-      lNodes = $;
       index = 1;
       bFaerieNode = FALSE;
       bQNode = FALSE;
@@ -7091,16 +7080,13 @@ messages:
             {
                bFaerieNode = TRUE;
             }
+            else if index = NODE_Q
+            {
+               bQNode = TRUE;
+            }
             else
             {
-               if index = NODE_Q
-               {
-                  bQNode = TRUE;
-               }
-               else
-               {
-                  lNodes = cons(index,lNodes);
-               }
+               lNodes = Cons(index,lNodes);
             }
          }
 
@@ -7122,14 +7108,14 @@ messages:
 
       if lNodes
       {
-         index = Nth(lNodes,random(1,length(lNodes)));
+         index = Nth(lNodes,Random(1,Length(lNodes)));
          oNode = Send(SYS,@FindNodeByNum,#num=index);
          Send(oNode,@UnMeld,#who=self);
 
          if report
          {
             Post(self,@MsgSendUser,#message_rsc=player_lose_node,
-                 #parm1=Send(oNode,@GetLocationName));
+                  #parm1=Send(oNode,@GetLocationName));
          }
       }
 
@@ -7140,7 +7126,7 @@ messages:
 
    RemoveNodeFromList(node_num=0)
    {
-      piNodelist=piNodelist & ~node_num ;
+      piNodelist = piNodelist & ~node_num ;
 
       return;
    }
@@ -7148,6 +7134,28 @@ messages:
    ResetNodeList()
    {
       piNodelist = 0;
+
+      return;
+   }
+
+   AddManaNode(node_num=0)
+   "Used for manually adding nodes by node ID."
+   {
+      local oNode;
+
+      if (piNodelist & node_num)
+      {
+         return;
+      }
+
+      oNode = Send(SYS,@FindNodeByNum,#num=node_num);
+
+      if (oNode = $)
+      {
+         return;
+      }
+
+      Send(oNode,@Meld,#who=self);
 
       return;
    }
@@ -7198,7 +7206,7 @@ messages:
             piMax_mana = piMax_mana + Send(oNode,@GetManaAdjust,#who=self);
             iNodelist = iNodelist & ~index;
          }
-         index=index*2;
+         index = index*2;
       }
 
       % Account for any items that may affect max mana
@@ -7251,7 +7259,7 @@ messages:
       {
          if piNodelist & i
          {
-            n = n + 1;
+            ++n;
          }
 
          i = 2 * i;
@@ -7265,7 +7273,6 @@ messages:
    {
       return piNodelist;
    }
-
 
    GetSpellList()
    {
@@ -8804,7 +8811,8 @@ messages:
 
       if IsClass(what,&User)
       {
-         monster_level = Send(what,@GetBaseMaxHealth);
+         // Set a reasonable upper bound to handle event characters.
+         monster_level = Bound(Send(what,@GetBaseMaxHealth),MIN_HP,1000);
       }
       else
       {
@@ -9145,6 +9153,17 @@ messages:
    {
       // Use piBase_Max_health directly.
       piXP_total = Send(SYS,@GetXPForLevel,#iHP=piBase_Max_health);
+
+      return;
+   }
+
+   CheckValidHP()
+   {
+      if (piMax_health > 100 + Send(self,@GetStamina))
+      {
+         Debug(Send(self,@GetTrueName)," has ",piMax_health," HP with ",
+               Send(self,@GetStamina)," stamina.");
+      }
 
       return;
    }
@@ -9710,8 +9729,8 @@ messages:
       foreach i in plSkills
       {
          if Send(self,@DecodeSkillAbility,#compound=i) > 5
-            AND random(1,100) > Send(self,@GetStamina)
-            AND random(1,100) < piDeathCost
+            AND Random(1,100) > Send(self,@GetStamina)
+            AND Random(1,100) < piDeathCost
          {
             Send(self,@ChangeSkillAbility,#skill_num=Send(self,@DecodeSpellNum,
                   #compound=i),#amount=iAmount);
@@ -9826,21 +9845,20 @@ messages:
       {
          return player_dead_male_name_rsc;
       }
-      
-      return player_dead_female_name_rsc;
 
+      return player_dead_female_name_rsc;
    }
-   
+
    GetDeadIcon()
    {
       if piGender = GENDER_MALE
       {
          return player_dead_male_icona_rsc;
       }
- 
+
       return player_dead_female_icona_rsc;
    }
-   
+
    FreeHands()
    "Attempts to remove all items from hands if possible."
    {
@@ -9894,7 +9912,7 @@ messages:
       Send(self,@MsgSendUser,#message_rsc=player_stop_dance);
       Send(self,@SetPlayerFlag,#flag=PFLAG2_DANCING,#value=FALSE,#flagset=2);
       Send(poOwner,@SomethingChanged,#what=self);
-      
+
       return;
    }
 
@@ -12632,7 +12650,10 @@ messages:
 
       if ptTempSafe <> $
       {
-         DeleteTimer(ptTempSafe);
+         if (IsTimer(ptTempSafe))
+         {
+            DeleteTimer(ptTempSafe);
+         }
       }
       ptTempSafe = CreateTimer(self,@EndTempSafe,iTime);
       piFlags = piFlags | PFLAG_TEMPSAFE;
@@ -12651,6 +12672,40 @@ messages:
       }
 
       ptTempSafe = $;
+
+      return;
+   }
+
+   PauseTempSafe()
+   {
+      local iTemp;
+
+      if (NOT IsTimer(ptTempSafe))
+      {
+         return;
+      }
+
+      iTemp = GetTimeRemaining(ptTempSafe);
+      DeleteTimer(ptTempSafe);
+      ptTempSafe = iTemp;
+
+      return;
+   }
+
+   UnpauseTempSafe()
+   {
+      if (ptTempSafe = $)
+      {
+         return;
+      }
+
+      if (NOT IsTimer(ptTempSafe))
+      {
+         ptTempSafe = CreateTimer(self,@EndTempSafe,ptTempSafe);
+      }
+
+      piFlags = piFlags | PFLAG_TEMPSAFE;
+      Send(self,@MsgSendUser,#message_rsc=player_temp_safe);
 
       return;
    }
@@ -13295,7 +13350,7 @@ messages:
       % the people who attempt to exploit this system for gain.
       if Random(1,100) > 50
       {
-         piKill_count_decay = piKill_count_decay - 1;
+         --piKill_count_decay;
          piKill_count_decay = Bound(piKill_count_decay,0,$);
       }
 
@@ -14179,8 +14234,9 @@ messages:
       piLastDeathTime = time;
       piGuildRejoinTimestamp = time;
       piLast_restart_time = time;
-      piTimeLastStomachUpdate = time;
-      piTimeAttackedPlayer = time;
+      piTimeLastStomachUpdate = 0;
+      piTimeAttackedPlayer = 0;
+      piTimeAttackedByPlayer = 0;
 
       return;
    }
@@ -14788,8 +14844,7 @@ messages:
       
       oPhase = Send(SYS,@FindSpellByNum,#num=SID_PHASE);
       Send(self,@RemoveEnchantment,#what=oPhase);
-      Send(oPhase,@NotifyRoomPenalty,#who=self);
-      Send(oPhase,@InflictFlatPenalties,#who=self);
+      Send(oPhase,@InflictPenalties,#who=self);
 
       Post(self,@AdminGoToLastSafeRoom);
 
@@ -14813,11 +14868,10 @@ messages:
       if (piFlags & PFLAG_MURDERER)
          OR (piFlags & PFLAG_OUTLAW)
       {
-         return Send(SETTINGS_OBJECT,
-               @GetOutlawMurdererLogoffPenaltyGhostTime);
+         return Send(SETTINGS_OBJECT,@GetOutlawMurdererLogPenGhostTime);
       }
 
-      return Send(SETTINGS_OBJECT,@GetLogoffPenaltyGhostTime);
+      return Send(SETTINGS_OBJECT,@GetLogPenGhostTime);
    }
 
    RefreshPhaseTimeToBase()
@@ -14871,23 +14925,28 @@ messages:
       return;
    }
 
-   GetLastPvpWarned()
+   GetLastAttackedByPlayerTime()
    {
       return piTimeAttackedByPlayer;
    }
-   
+
    DoPvpNotify()
    {
-      % Don't gong if we are already in pvp
-      if piTimeAttackedPlayer < GetTime() - PVP_NOTIFY_DECAY
+      local iTime, iNotify;
+
+      iTime = GetTime();
+      iNotify = iTime - PVP_NOTIFY_DECAY;
+
+      // Don't gong if we are already in pvp
+      if (piTimeAttackedPlayer < iNotify
+         AND piTimeAttackedByPlayer < iNotify
+         AND poOwner <> $)
       {
-         if poOwner <> $
-         {
-            Send(poOwner,@SomethingWaveRoom,#what=self,
-                  #wave_rsc=pvp_notify_wav);
-            piTimeAttackedByPlayer = GetTime();
-         }
+         Send(poOwner,@SomethingWaveRoom,#what=self,#wave_rsc=pvp_notify_wav);
       }
+
+      // Set our attacked-by time here.
+      piTimeAttackedByPlayer = iTime;
 
       return;
    }

@@ -429,7 +429,7 @@ properties:
    %  death.
    piLogoffPenaltyEquivDeath = 10
 
-   ptLogoffPenaltyTempDisable = $
+   ptLogPenTempDisable = $
    ptServerPopulationMonitor = $
    piLastServerPopulation = 0
 
@@ -2810,30 +2810,28 @@ messages:
    {
       local lRoomIcons;
 
-      lRoomIcons = $;
-
       if (flags & ROOM_NO_COMBAT)
       {
-         lRoomIcons = cons(Nth(plRoomIcons,ICON_ROOM_NO_COMBAT),lRoomIcons);
+         lRoomIcons = Cons(Nth(plRoomIcons,ICON_ROOM_NO_COMBAT),lRoomIcons);
       }
 
       if (flags & ROOM_GUILD_PK_ONLY)
       {
-         lRoomIcons = cons(Nth(plRoomIcons,ICON_ROOM_GUILD_PK_ONLY),lRoomIcons);
+         lRoomIcons = Cons(Nth(plRoomIcons,ICON_ROOM_GUILD_PK_ONLY),lRoomIcons);
       }
 
       if NOT (flags & ROOM_NO_COMBAT)
          AND NOT (flags & ROOM_GUILD_PK_ONLY)
          AND NOT (flags & ROOM_KILL_ZONE)
       {
-         lRoomIcons = cons(Nth(plRoomIcons,ICON_ROOM_KILL_ZONE),lRoomIcons);
+         lRoomIcons = Cons(Nth(plRoomIcons,ICON_ROOM_KILL_ZONE),lRoomIcons);
       }
 
       if (flags & ROOM_KILL_ZONE)
          AND NOT (flags & ROOM_NO_COMBAT)
          AND NOT (flags & ROOM_GUILD_PK_ONLY)
       {
-         lRoomIcons = cons(Nth(plRoomIcons,ICON_ROOM_KILL_ZONE),lRoomIcons);
+         lRoomIcons = Cons(Nth(plRoomIcons,ICON_ROOM_KILL_ZONE),lRoomIcons);
       }
 
       return lRoomIcons;
@@ -3853,6 +3851,7 @@ messages:
       phTresTypes = CreateTable(191);
 
       Create(&NoTreasure);
+      Create(&EmptyTreasure);
       Create(&NewbieAreaTreasure);
 
       Create(&WimpyTreasure);
@@ -6674,7 +6673,7 @@ messages:
 
    GetLogoffPenaltyEnable()
    {
-      if ptLogoffPenaltyTempDisable = $
+      if ptLogPenTempDisable = $
       {
          return pbLogoffPenaltyEnable;
       }
@@ -6683,10 +6682,10 @@ messages:
 
    SetLogoffPenaltyEnable(enable=TRUE)
    {
-      if enable AND (ptLogoffPenaltyTempDisable <> $)
+      if enable AND (ptLogPenTempDisable <> $)
       {
-         deleteTimer(ptLogoffPenaltyTempDisable);
-         ptLogoffPenaltyTempDisable = $;
+         DeleteTimer(ptLogPenTempDisable);
+         ptLogPenTempDisable = $;
       }
       pbLogoffPenaltyEnable = enable;
 
@@ -6698,42 +6697,39 @@ messages:
       return piLogoffPenaltyEquivDeath;
    }
 
-   GetLogoffPenaltyGhostTime()
-   {
-      return Send(SETTINGS_OBJECT,@GetLogoffPenaltyGhostTime);
-   }
-
    TempDisableLogoffPenalties()
    {
-      local iDisableDuration;
+      local iDuration;
 
-      if ptLogoffPenaltyTempDisable <> $
+      if ptLogPenTempDisable <> $
       {
-         deleteTimer(ptLogoffPenaltyTempDisable);
-         ptLogoffPenaltyTempDisable = $;
+         DeleteTimer(ptLogPenTempDisable);
+         ptLogPenTempDisable = $;
       }
 
-      iDisableDuration = (Send(SETTINGS_OBJECT,@GetLogoffPenaltyGhostTime)*150)/100;
+      iDuration = (Send(SETTINGS_OBJECT,@GetLogPenGhostTime) * 150) / 100;
 
-      ptLogoffPenaltyTempDisable = CreateTimer(self,@LogoffPenaltyTempDisableTrigger,iDisableDuration);
+      ptLogPenTempDisable = CreateTimer(self,@LogPenTempDisableTrigger,iDuration);
 
       return;
    }
 
-   LogoffPenaltyTempDisableTrigger()
+   LogPenTempDisableTrigger()
    {
-      ptLogoffPenaltyTempDisable = $;
+      ptLogPenTempDisable = $;
+
       return;
    }
 
    ServerPopulationMonitor()
    {
       local popDrop;
+
       ptServerPopulationMonitor = $;
 
-      popDrop = (piLastServerPopulation - length(plUsers_logged_on));
+      popDrop = (piLastServerPopulation - Length(plUsers_logged_on));
       if (popDrop > piServerPopDropThreshold)
-         AND ((popDrop*100/piLastServerPopulation)
+         AND ((popDrop * 100 / piLastServerPopulation)
               > piServerPopulationPercentDrop)
       {
          Debug("Server population dropped by more than ",
@@ -6742,7 +6738,7 @@ messages:
          Send(self,@TempDisableLogoffPenalties);
       }
 
-      piLastServerPopulation = length(plUsers_logged_on);
+      piLastServerPopulation = Length(plUsers_logged_on);
       ptServerPopulationMonitor = CreateTimer(self,@ServerPopulationMonitor,
                                               piServerPopMonitorInterval);
 
@@ -6753,6 +6749,7 @@ messages:
    FactionChanged( new_faction = $ )
    {
       local i;
+
       if new_faction = $
       {
          return;
@@ -6762,6 +6759,7 @@ messages:
       {
          Send( i, @FactionChanged, #new_fact = new_faction );
       }
+
       return;
    }
 
@@ -7788,6 +7786,8 @@ messages:
       return resistance_list;
    }
 
+#region Print Game Info
+
    PrintSpellsBySchool()
    "Prints all spells with mana, vigor, reagent costs, level, TP cost and "
    "improve chance.  Spells are printed by school."
@@ -7889,6 +7889,24 @@ messages:
 
       return;
    }
+
+   PrintMobGenerators()
+   "Prints out mob generator positions and mob classes for all rooms."
+   {
+      SendList(plRooms,0,@PrintMobGenerators);
+
+      return;
+   }
+
+   PrintNPCRooms()
+   "Uses the Library NPC list to print out all NPC names and owning rooms."
+   {
+      SendList(Send(Send(SYS,@GetLibrary),@GetNPCs),0,@PrintRoom);
+
+      return;
+   }
+
+#endregion Print Game Info
 
    RemoveAllResistances(resistance_list = $)
    "This clears the resistance list... for if someone's char is really messed "

@@ -1728,6 +1728,7 @@
    TID_MEDIUM_TOUGH  = 5
    TID_TOUGH         = 6
    TID_VERY_TOUGH    = 7
+   TID_EMPTY         = 8
 
    TID_UNDEAD        = 21
    TID_SPIDER_LAIR   = 22
@@ -2402,8 +2403,10 @@
    PFLAG2_SQUELCHED_BCAST  = 0x000400
    PFLAG2_SQUELCHED_SAYS   = 0x000800
    PFLAG2_SQUELCHED_POSTS  = 0x001000
+   PFLAG2_SQUELCHED_MAIL   = 0x002000
+   PFLAG2_SQUELCHED_APPEAL = 0x004000
    % Sum of the other squelched flags.
-   PFLAG2_SQUELCHED_ALL    = 0x001E00
+   PFLAG2_SQUELCHED_ALL    = 0x003E00
 
    % Third set of player flags (in piFlags3)
    % piFlags3 can now be used as a proper bitfield, and no longer
@@ -2456,6 +2459,8 @@
    DMFLAG_ALLOW_COMBAT           = 0x200000
    // Allow giving items to NPCs/mobs.
    DMFLAG_ALLOW_GIVE_MOBS        = 0x400000
+   // Allow switching immortality on/off
+   DMFLAG_ALLOW_SET_MORTAL       = 0x800000
 
    DMFLAG_SET_MODERATOR          = 0x000000
    DMFLAG_SET_BARD               = 0x0414C0
