@@ -2296,6 +2296,7 @@ messages:
       Send(self,@CreateOneRoomIfNew,#num=RID_TOS_SMITHY,#class=&TosSmithy);
       Send(self,@CreateOneRoomIfNew,#num=RID_TOS_CRYPT,#class=&TosCrypt);
       Send(self,@CreateOneRoomIfNew,#num=RID_TOS_HALL,#class=&TosHall);
+	  Send(self,@CreateOneRoomIfNew,#num=RID_TOS_DMHALL,#class=&TosDMHall);
 
       % Marion stuff
       Send(self,@CreateOneRoomIfNew,#num=RID_MARION,#class=&Marion);

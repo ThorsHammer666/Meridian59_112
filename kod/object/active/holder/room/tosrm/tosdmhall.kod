@@ -1,0 +1,88 @@
+% Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+% All rights reserved.
+%
+% This software is distributed under a license that is described in
+% the LICENSE file that accompanies it.
+%
+% Meridian is a registered trademark.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+TosDMHall is TosRoom
+
+constants:
+
+   include blakston.khd
+
+
+resources:
+
+   include tosdmhall.lkod
+
+   room_name_tosdmhall = "The Guide Hall of Tos"
+   room_tosdmhall = tosdmhall.roo
+   tosdmhall_music = main.ogg
+
+   news_tos_dmhall = "General News"
+   news_tos_dmhall_desc = "Find out what's happening around Meridian."
+
+classvars:
+
+   vrName = room_name_tosdmhall
+
+   viTeleport_row = 5
+   viTeleport_col = 5
+
+   viTerrain_type = TERRAIN_CITY | TERRAIN_SHOP
+
+properties:
+
+   viPermanent_flags = ROOM_NO_COMBAT | ROOM_SAFELOGOFF
+
+   prRoom = room_tosdmhall
+   piRoom_num = RID_TOS_DMHALL
+
+   piBaseLight = LIGHT_NICE
+   piOutside_factor = 3
+
+   prMusic = corhall_music
+
+messages:
+
+   CreateStandardExits()
+   {
+      plExits = $;
+
+      % TO TOWN
+      plExits = Cons([ 10, 4, RID_TOS, 33, 22, ROTATE_NONE ],plExits);
+
+      propagate;
+   }
+
+   CreateStandardObjects()
+   {
+%      local oNews;
+%
+%      oNews = Send(SYS,@FindNewsByNum,#num=NID_TOS_HALL);
+%      if oNews = $
+%      {
+%         oNews = Create(&News,#nid=NID_TOS_HALL,
+%                        #name=news_tos_dmhall,#desc=news_tos_dmhall_desc);
+%      }
+%      Send(self,@NewHold,#what=oNews,#new_row=14,#new_col=13,
+%            #fine_row=16,#fine_col=48);
+%
+%      Send(self,@NewHold,#what=Create(&Chest),#new_row=10,#new_col=13);
+%
+%      Send(self,@NewHold,#what=Create(&Brazier),#new_row=7,#new_col=3,
+%           #fine_row=16,#fine_col=48);
+%      Send(self,@NewHold,#what=Create(&Brazier),#new_row=11,#new_col=3,
+%           #fine_row=48,#fine_col=48);
+%      Send(self,@NewHold,#what=Create(&Brazier),#new_row=3,#new_col=20);
+%      Send(self,@NewHold,#what=Create(&Brazier),#new_row=8,#new_col=20);
+%
+      propagate;
+   }
+
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
