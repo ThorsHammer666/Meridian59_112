@@ -4,7 +4,9 @@
 *.bof
 *.rsc
 kodbase.txt
-run/*
+run/server/*
+run/localclient/*
+!run/localclient/*.dll
 bbgun.exe
 clientpatch.exe
 palcomp.exe
@@ -88,6 +90,8 @@ local.properties
 *.obj
 *.pch
 *.pdb
+*.ipdb
+*.iobj
 *.pgc
 *.pgd
 *.rsp
@@ -110,6 +114,8 @@ ipch/
 *.ncb
 *.opensdf
 *.sdf
+*.VC.db
+*.VC.opendb
 
 # Visual Studio profiler
 *.psess
@@ -207,3 +213,7 @@ pip-log.txt
 /roomedit/windeu32.log
 /roomedit/owl-6.34/lib
 *.roo~
+*.dbs
+*.backup1
+*.backup2
+*.backup3

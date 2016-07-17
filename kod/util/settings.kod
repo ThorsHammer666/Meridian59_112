@@ -44,9 +44,6 @@ properties:
    % Player advancement
    %
 
-   % If true, you can't take any objects out of the newbie area.
-   pbCleanNewbieInventoryOnEnteringRealWorld = FALSE
-
    piKillKarmaSwingNeutral = 3
    piKillKarmaSwingMonster = 6
    piKillKarmaSwingPlayer = 10
@@ -129,6 +126,9 @@ properties:
    // Spell items cost this much compared to casting the actual spell.
    piItemManaCostPct = 75
 
+   // Can users buff each other in safe zones?
+   pbBuffOthersInSafeZones = TRUE
+
    %
    % Guild hall settings
    %
@@ -202,7 +202,7 @@ properties:
    %
 
    % Set map where players start in.
-   piInitialRoomID = RID_NEWB1
+   piInitialHomeRoomID = RID_RAZA_INN
 
    % Enables or disables some safe-spots, see blakston.khd comments.
    piLOSSkip = LOS_SKIP_1
@@ -379,11 +379,6 @@ messages:
       return piLoreBookDropFactor;
    }
 
-   CleanNewbieInventoryOnEnteringRealWorld()
-   {
-      return pbCleanNewbieInventoryOnEnteringRealWorld;
-   }
-
    GetDefaultDeathCost()
    {
       return piDefaultDeathCost;
@@ -486,6 +481,11 @@ messages:
    GetItemManaCostPct()
    {
       return piItemManaCostPct;
+   }
+
+   CanBuffOthersInSafeZones()
+   {
+      return pbBuffOthersInSafeZones;
    }
 
    %
@@ -597,7 +597,7 @@ messages:
 
    GetInitialRoomID()
    {
-      return piInitialRoomID;
+      return piInitialHomeRoomID;
    }
 
    GetLOSSkip()
