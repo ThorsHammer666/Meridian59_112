@@ -11,6 +11,10 @@ bq_clerk_desc_rsc = de \
 bq_clerk_for_shame = de \
    "Schäme Dich, %s! Aufgrund Deines ungesetzlichen Status muss ich Dich "
    "des Amtes entheben!"
+bq_clerk_non_pvp_justicar = de \
+   "%s, Du hast den Entschluss gefasst, dich nicht weiter den Belangen von "
+   "Kämpfen zu widmen, und dadurch bist du nun nicht mehr qualifiziert das "
+   "Amt des Richters auszuüben."
 bq_clerk_hail_justicar = de \
    "Gesegnet seien alle, der ehrenwerte Justiziar %s ist angekommen!"
 bq_clerk_bye_justicar = de \
@@ -140,6 +144,8 @@ bq_clerk_bad_candidate = de \
    "%q kommt für das Amt des Justiziars nicht in Frage."
 bq_clerk_no_newbie_voter = de "Du bist noch nicht berechtigt zu wählen."
 bq_clerk_no_outlaw_voter = de "Kriminelle haben kein Wahlrecht. Verschwinde."
+bq_clerk_non_pvper = de \
+   "Nur Spieler die an Kämpfen teilnehmen haben das Recht zu wählen."
 
 bq_clerk_notify_ad = de \
    "~wCaramo teilt Dir mit, \"~I~bEs findet gerade eine Wahl zum Amt des "
@@ -224,14 +230,14 @@ bq_clerk_glare = de "Versucht Euch zivilisiert zu benehmen, %s."
 
 // Pardons
 
-barloque_clerk_pardon_1 = de "Lasst es bekannt werden, dass "
-barloque_clerk_pardon_2 = de " eine Gnadenfrist gewährt wurde. Ehemals "
-// barloque_clerk_pardon_3 = de ", "
-barloque_clerk_pardon_4 = de "weilt diese Person nun als "
-barloque_clerk_pardon_5 = de " unter uns. Im Namen des Justiziars "
-barloque_clerk_pardon_6 = de \
+bq_clerk_pardon_1 = de "Lasst es bekannt werden, dass "
+bq_clerk_pardon_2 = de " eine Gnadenfrist gewährt wurde. Ehemals "
+bq_clerk_pardon_3 = de ", "
+bq_clerk_pardon_4 = de "weilt diese Person nun als "
+bq_clerk_pardon_5 = de " unter uns. Im Namen des Justiziars "
+bq_clerk_pardon_6 = de \
    ". So ward es gesprochen, so soll es geschehen.\n\n-- Caramo"
-barloque_clerk_pardon_7 = de " wurde offiziell begnadigt."
+bq_clerk_pardon_7 = de " wurde offiziell begnadigt."
 
 // Bribes
 
