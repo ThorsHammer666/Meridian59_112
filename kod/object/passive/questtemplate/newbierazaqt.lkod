@@ -1,0 +1,21 @@
+newbierazaquest_name_rsc = de "Newbie Raza Quest"
+newbierazaquest_desc_rsc = de \
+	"You'r new in this world so Marcus will help you getting some stuff. "
+	"Just ask him for help and he might offer you something you can do for him."
+	  
+newbierazaquest_completed_rsc = de \
+	"You have delivered an inky-cap mushroom to Marcus, "
+	"abd received a scale armor in return."
+
+   // Quest resources.
+newbierazaquest_trigger_1 = de "Newbie"
+newbierazaquest_assign_2 = de \
+    "Hey new adventurer i'm really hungry and i heard there are some "
+	"inky-caps around. If you get me one of those delicous mushrooms i will "
+	"give you a scale armor in return. "
+newbierazaquest_success_2 = de \
+    "Wow i knew they were delicous but holy cow this one was just amazing. "
+	"Take this scale armor in return. Thank you!"
+newbierazaquest_failure_2 = de \
+    "Subject:  Thanks for nothing!\n"
+    "I just wanted to taste one of these delicous inky-caps but it looks like i wasn't worth to bring one!"

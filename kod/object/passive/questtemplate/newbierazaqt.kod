@@ -1,0 +1,142 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+
+
+/////////////////////////////////////////////////////////////////////////////////
+NewbieRazaQuest is QuestTemplate
+// Quest template QST_ID_BONE_PRIESTESS = 17.
+// Quest nodes 31, 32
+// QNT_ID_BONE_PRIESTESS_OPB_ONE, QNT_ID_NEWBIE_RAZA_TWO
+
+// QuestTemplate is
+// [ quest template index
+//   quest template object
+//   number of players,
+//   type of quest,
+//   eligible player restrictions,
+//   quest nodes,
+//   max number active,
+//   currently active quests,
+//   percent chance of scheduling (on timer firing)
+//   special restrictions ]
+
+constants:
+
+   include blakston.khd
+
+resources:
+
+   include newbierazaqt.lkod
+
+   // Quest description.
+   newbierazaquest_icon_rsc = orcpitb.bgf
+   newbierazaquest_name_rsc = "Newbie Raza Quest"
+   newbierazaquest_desc_rsc = \
+	  "You'r new in this world so Marcus will help you getting some stuff. "
+	  "Just ask him for help and he might offer you something you can do for him."
+	  
+   newbierazaquest_completed_rsc = \
+      "You have delivered an inky-cap mushroom to Marcus, "
+	  "abd received a scale armor in return."
+
+   // Quest resources.
+   newbierazaquest_trigger_1 = "Newbie"
+   newbierazaquest_assign_2 = \
+      "Hey new adventurer i'm really hungry and i heard there are some "
+	  "inky-caps around. If you get me one of those delicous mushrooms i will "
+	  "give you a scale armor in return. "
+   newbierazaquest_success_2 = \
+      "Wow i knew they were delicous but holy cow this one was just amazing. "
+	  "Take this scale armor in return. Thank you!"
+   newbierazaquest_failure_2 = \
+      "Subject:  Thanks for nothing!\n"
+      "I just wanted to taste one of these delicous inky-caps but it looks like i wasn't worth to bring one!"
+
+classvars:
+
+   vrIcon = newbierazaquest_icon_rsc
+   vrName = newbierazaquest_name_rsc
+   vrDesc = newbierazaquest_desc_rsc
+
+   vrCompleted = newbierazaquest_completed_rsc
+
+   // The QST_ID constant for this quest.
+   viQuestID = QST_ID_NEWBIE_RAZA
+
+   viIcon_Animation_start = 1
+
+properties:
+
+   piNumPlayers = 1
+   piPlayerRestrict = Q_PLAYER_NOTTRIED_RECENTLY
+   plSpecialRestrict = $
+   piMaxPlayers = 20
+   piSchedulePct = 10
+   piTimeLimit = 10800 // 3 hours.
+
+messages:
+
+   Constructor()
+   {
+      // Quest node list to send to QuestEngine.
+      plQuestNodes = [QNT_ID_NEWBIE_RAZA_ONE,
+                      QNT_ID_NEWBIE_RAZA_TWO];
+
+      propagate;
+   }
+
+   SendQuestNodeTemplates()
+   {
+      local oQE, oLib;
+
+      oQE = Send(SYS,@GetQuestEngine);
+      oLib = Send(SYS,@GetLibrary);
+
+      // Template #31 is bone priestess quest kickoff
+      // QNT_ID_BONE_PRIESTESS_OPB_ONE
+      if Send(oQE,@AddQuestNodeTemplate,#questnode_type=QN_TYPE_MESSAGE,
+               #cargolist=[newbierazaquest_trigger_1],
+               #quest_node_index=QNT_ID_NEWBIE_RAZA_ONE)
+      {
+         Send(oQE,@SetQuestNodeNPCList,#index=QNT_ID_NEWBIE_RAZA_TWO,
+               #new_NPC_list=Send(oLib,@GetOccupationList,
+                                 #cNPC_class=&RazaInnKeeper));
+      }
+      else
+      {
+         Debug("Error building QN: QNT_ID_NEWBIE_RAZA_ONE");
+      }
+
+      // Template #32 is bone priestess quest
+      // QNT_ID_NEWBIE_RAZA_TWO
+      if Send(oQE,@AddQuestNodeTemplate,#questnode_type=QN_TYPE_ITEMFINDCLASS,
+               #cargolist=[ [ QN_PRIZETYPE_ITEMCLASS, &InkyCap, 1  ] ],
+               #prizelist=[ [ QN_PRIZETYPE_ITEMCLASS, &ScaleArmor, 1 ] ],
+               #quest_node_index=QNT_ID_NEWBIE_RAZA_TWO)
+      {
+         Send(oQE,@SetQuestNodeNPCModifier,#index=QNT_ID_NEWBIE_RAZA_TWO,
+               #new_mod=QN_NPCMOD_SAME);
+         Send(oQE,@SetQuestNodeAssignHint,#index=QNT_ID_NEWBIE_RAZA_TWO,
+               #new_hint=bonepriestessquest_assign_2);
+         Send(oQE,@SetQuestNodeSuccessHint,#index=QNT_ID_NEWBIE_RAZA_TWO,
+               #new_hint=bonepriestessquest_success_2);
+         Send(oQE,@SetQuestNodeFailureHint,#index=QNT_ID_NEWBIE_RAZA_TWO,
+               #new_hint=bonepriestessquest_failure_2);
+         Send(oQE,@SetQuestNodeTimeLimit,#index=QNT_ID_NEWBIE_RAZA_TWO,
+               #new_limit=piTimeLimit);
+      }
+      else
+      {
+         Debug("Error building QN: QNT_ID_NEWBIE_RAZA_TWO");
+      }
+
+      return;
+   }
+
+end
+/////////////////////////////////////////////////////////////////////////////////
