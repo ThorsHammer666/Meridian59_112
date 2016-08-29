@@ -76,7 +76,7 @@ properties:
    piPlayerRestrict = Q_PLAYER_NOTTRIED_RECENTLY
    plSpecialRestrict = $
    piMaxPlayers = 20
-   piSchedulePct = 10
+   piSchedulePct = 100
    piTimeLimit = 10800 // 3 hours.
 
 messages:
@@ -103,7 +103,7 @@ messages:
                #cargolist=[newbierazaquest_trigger_1],
                #quest_node_index=QNT_ID_NEWBIE_RAZA_ONE)
       {
-         Send(oQE,@SetQuestNodeNPCList,#index=QNT_ID_NEWBIE_RAZA_TWO,
+         Send(oQE,@SetQuestNodeNPCList,#index=QNT_ID_NEWBIE_RAZA_ONE,
                #new_NPC_list=Send(oLib,@GetOccupationList,
                                  #cNPC_class=&RazaInnKeeper));
       }
