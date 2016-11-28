@@ -2710,6 +2710,13 @@ messages:
    SomethingPhasedOut(what=$, iHealth=$, iMaxHealth=$)
    "Faster override for Room, don't need to propagate to Holder."
    {
+      local i;
+
+      foreach i in plEnchantments
+      {
+         Send(Nth(i,2),@EndRoomEnchantment,#who=what,#state=Nth(i,3));
+      }
+
       SendList(plActive,1,@SomethingPhasedOut,#what=what,#iHealth=iHealth,
             #iMaxHealth=iMaxHealth);
 
@@ -2719,6 +2726,16 @@ messages:
    SomethingPhasedIn(what=$)
    "Faster override for Room, don't need to propagate to Holder."
    {
+      local i;
+
+      // Add room enchantment effects.
+      foreach i in plEnchantments
+      {
+         // Users already have enchantment icon.
+         Send(Nth(i,2),@StartEnchantmentNewOccupant,#who=what,
+               #state=(Nth(i,3)));
+      }
+
       SendList(plActive,1,@SomethingPhasedIn,#what=what);
 
       return;
@@ -2727,6 +2744,13 @@ messages:
    SomethingSpectatedOut(what=$)
    "Faster override for Room, don't need to propagate to Holder."
    {
+      local i;
+
+      foreach i in plEnchantments
+      {
+         Send(Nth(i,2),@EndRoomEnchantment,#who=what,#state=Nth(i,3));
+      }
+
       SendList(plActive,1,@SomethingSpectatedOut,#what=what);
 
       return;
@@ -2735,6 +2759,16 @@ messages:
    SomethingSpectatedIn(what=$)
    "Faster override for Room, don't need to propagate to Holder."
    {
+      local i;
+
+      // Add room enchantment effects.
+      foreach i in plEnchantments
+      {
+         // Users already have enchantment icon.
+         Send(Nth(i,2),@StartEnchantmentNewOccupant,#who=what,
+               #state=(Nth(i,3)));
+      }
+
       SendList(plActive,1,@SomethingSpectatedIn,#what=what);
 
       return;
@@ -4182,11 +4216,19 @@ messages:
 
    RoomReqCommunication(who=$,type=$,string=$)
    {
-      local oSpell;
+      local lState, oSpell;
+
+      // DMs can always speak.
+      if (IsClass(who,&DM))
+      {
+         return TRUE;
+      }
 
       oSpell = Send(SYS,@FindSpellByNum,#num=SID_SILENCE);
 
-      if Send(self,@IsEnchanted,#what=oSpell) AND (NOT IsClass(who,&DM))
+      lState = Send(self,@GetEnchantmentState,#what=oSpell);
+      if (lState <> $)
+         AND Send(First(lState),@AllowBattlerAttack,#victim=who,#stroke_obj=self)
       {
          Send(who,@MsgSendUser,#message_rsc=room_silenced_rsc);
 
@@ -4284,7 +4326,12 @@ messages:
    DispelIllusionEnchantments(who = $, report = TRUE, iChance = 100,
                               stroke_obj = $)
    {
-      local i,pSpell,each_obj,oSpell;
+      local i, each_obj, oSpell;
+
+      if (who = $)
+      {
+         return;
+      }
 
       foreach i in plEnchantments
       {
@@ -4300,9 +4347,7 @@ messages:
       {
          each_obj = First(i);
          if IsClass(each_obj,&Battler)
-            AND who <> $
-            AND Send(self,@ReqSomethingAttack,#what=who,#victim=each_obj)
-            AND Send(who,@AllowPlayerAttack,#victim=each_obj,
+            AND Send(who,@AllowBattlerAttack,#victim=each_obj,
                      #stroke_obj=stroke_obj)
          {
             Send(each_obj,@DispelIllusionEnchantments,#report=report,
@@ -4318,6 +4363,11 @@ messages:
    {
       local i, each_obj, oTarget;
 
+      if (who = $)
+      {
+         return;
+      }
+
       if NOT bAll
       {
          // This means we just want to dispel room illusions, not the specific
@@ -4330,13 +4380,11 @@ messages:
          each_obj = First(i);
          if Send(each_obj,@IsIllusion)
             AND Random(1,100) <= iChance
-            AND who <> $
          {
             if (IsClass(each_obj,&Monster))
             {
-               if (Send(self,@ReqSomethingAttack,#what=who,#victim=each_obj)
-                     AND Send(who,@AllowPlayerAttack,#victim=each_obj,
-                              #stroke_obj=stroke_obj))
+               if (Send(who,@AllowBattlerAttack,#victim=each_obj,
+                        #stroke_obj=stroke_obj))
                {
                   Send(each_obj,@Delete);
                }
@@ -4345,9 +4393,8 @@ messages:
             {
                oTarget = Send(each_obj,@GetCaster);
 
-               if (Send(self,@ReqSomethingAttack,#what=who,#victim=oTarget)
-                  AND Send(who,@AllowPlayerAttack,#victim=oTarget,
-                           #stroke_obj=stroke_obj))
+               if (Send(who,@AllowBattlerAttack,#victim=oTarget,
+                        #stroke_obj=stroke_obj))
                {
                   Send(each_obj,@Delete);
                }
@@ -4364,9 +4411,8 @@ messages:
             if IsClass(each_obj,&PassiveWallofFire)
             {
                oTarget = Send(each_obj,@GetCaster);
-               if Send(self,@ReqSomethingAttack,#what=who,#victim=oTarget)
-                  AND Send(who,@AllowPlayerAttack,#victim=oTarget,
-                           #stroke_obj=stroke_obj)
+               if Send(who,@AllowBattlerAttack,#victim=oTarget,
+                        #stroke_obj=stroke_obj)
                {
                   Send(each_obj,@Delete);
                }
