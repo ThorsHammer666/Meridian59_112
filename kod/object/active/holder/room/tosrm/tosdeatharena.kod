@@ -1,0 +1,100 @@
+// Meridian 59, Copyright 1994-2012 Andrew Kirmse and Chris Kirmse.
+// All rights reserved.
+//
+// This software is distributed under a license that is described in
+// the LICENSE file that accompanies it.
+//
+// Meridian is a registered trademark.
+//////////////////////////////////////////////////////////////////////////////////
+TosDeathArena is TosRoom
+
+constants:
+
+   include blakston.khd
+   
+   ENTRANCE_DOOR = 1
+   ENTRANCE_DOOR_TIME = 10000
+
+resources:
+
+   include tosdeatharena.lkod
+
+   room_tosdeatharena = tosarena_death.roo
+   room_name_tosdeatharena = "Tos Death Arena"
+   tosdeatharena_music = tos.ogg
+   
+   Death_Arena_door_open_sound = doordown.ogg
+   Death_Arena_door_close_sound = doorrsup.ogg
+
+classvars:
+
+   vrName = room_name_tosgrey
+
+   viTeleport_Row = 15
+   viTeleport_Col = 24
+
+   viTerrain_type = TERRAIN_CITY | TERRAIN_RESIDENCE
+
+properties:
+
+   prRoom = room_tosdeatharena
+   piRoom_num = RID_TOS_DEATH_ARENA
+   prMusic = tosgrey_music
+
+   piBaseLight = LIGHT_NICE
+   piOutside_factor = 0
+   
+   ptDoorTimer = $
+
+messages:
+ SomethingTryGo(what = $,row = $,col = $)
+   {
+      // Entrance Door to the Death Arena (cosmetic)
+      if row >= 9 AND row <= 11 AND col >= 22 AND col <= 25
+      {
+         Send(self,@SetSector,#sector=ENTRANCE_DOOR,#animation=ANIMATE_FLOOR_LIFT,
+              #height=120,#speed=16);
+         Send(self,@SomethingWaveRoom,#wave_rsc=Death_Arena_door_open_sound);
+         ptDoorTimer = CreateTimer(self,@ResetDoorTimer,ENTRANCE_DOOR_TIME);
+
+         return TRUE;
+      }
+
+      propagate;
+   }
+
+ ResetDoorTimer()
+   {
+      ptDoorTimer = $;
+
+      Send(self,@SetSector,#sector=ENTRANCE_DOOR,#animation=ANIMATE_FLOOR_LIFT,
+           #height=200,#speed=16);
+      Send(self,@SomethingWaveRoom,#wave_rsc=Death_Arena_door_close_sound);
+
+      return;
+   }
+
+   Delete()
+   {
+      if (ptDoorTimer <> $)
+      {
+         DeleteTimer(ptDoorTimer);
+         ptDoorTimer = $;
+      }
+
+      propagate;
+   }
+   
+   CreateStandardExits()
+   {
+      plExits = $;
+
+      // exits back to tos
+      plExits = Cons([  7, 24, RID_EAST_TOS,  29, 52, ROTATE_NONE ],plExits);
+      plExits = Cons([  7, 25, RID_EAST_TOS,  29, 52, ROTATE_NONE ],plExits);
+
+      propagate;
+   }
+
+end
+////////////////////////////////////////////////////////////////////////////////
