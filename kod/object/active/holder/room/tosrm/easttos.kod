@@ -75,8 +75,8 @@ messages:
       plExits = Cons([ 17, 35, RID_TOS_ARENA2, 17, 36, ROTATE_NONE ],plExits);
       plExits = Cons([ 17, 36, RID_TOS_ARENA2, 17, 37, ROTATE_NONE ],plExits);
 
-      plExits = Cons([ 29, 51, RID_TOS_DEATH_ARENA, 7, 24, ROTATE_NONE ],plExits);
-      plExits = Cons([ 29, 52, RID_TOS_DEATH_ARENA, 7, 25, ROTATE_NONE ],plExits);
+      plExits = Cons([ 28, 51, RID_TOS_DEATH_ARENA, 8, 23, ROTATE_NONE ],plExits);
+      plExits = Cons([ 29, 51, RID_TOS_DEATH_ARENA, 8, 24, ROTATE_NONE ],plExits);
 
       plEdge_Exits = $;
       plEdge_Exits = Cons([ LEAVE_SOUTH, RID_I6, 2, 43, ANGLE_SOUTH ], plEdge_exits);
@@ -86,12 +86,6 @@ messages:
 
    CreateStandardObjects()
    {
-      Send(self,@NewHold,#what=Create(&Shrub),
-           #new_row=28,#new_col=8,#fine_row=63,#fine_col=3,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Shrub),
-           #new_row=28,#new_col=10,#fine_row=63,#fine_col=12,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Shrub),
-           #new_row=28,#new_col=12,#fine_row=63,#fine_col=37,#new_angle=ANGLE_SOUTH);
       Send(self,@NewHold,#what=Create(&Shrub),
            #new_row=28,#new_col=14,#fine_row=63,#fine_col=62,#new_angle=ANGLE_SOUTH);
       Send(self,@NewHold,#what=Create(&Shrub),
@@ -111,29 +105,29 @@ messages:
            #new_row=35,#new_col=4,#fine_row=62,#fine_col=5,#new_angle=ANGLE_SOUTH);
 
       //Arena Trees right side
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=35,#new_col=19,#fine_row=15,#fine_col=23,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=36,#new_col=17,#fine_row=2,#fine_col=42,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=36,#new_col=15,#fine_row=43,#fine_col=46,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=36,#new_col=13,#fine_row=48,#fine_col=19,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=36,#new_col=19,#fine_row=62,#fine_col=49,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=37,#new_col=20,#fine_row=63,#fine_col=44,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=39,#new_col=21,#fine_row=12,#fine_col=51,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=40,#new_col=23,#fine_row=8,#fine_col=2,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=46,#new_col=30,#fine_row=13,#fine_col=13,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=46,#new_col=32,#fine_row=8,#fine_col=33,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=46,#new_col=35,#fine_row=2,#fine_col=21,#new_angle=ANGLE_SOUTH);
-      Send(self,@NewHold,#what=Create(&Tallbush),
+      Send(self,@NewHold,#what=Create(&Tree),
            #new_row=46,#new_col=39,#fine_row=1,#fine_col=7,#new_angle=ANGLE_SOUTH);
 
       //Arena Trees Left side
