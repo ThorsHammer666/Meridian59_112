@@ -137,19 +137,19 @@ messages:
             #fine_row=18,#fine_col=25);
 
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=6,#fine_row=1,#fine_col=35);
+           #new_row=22,#new_col=6,#fine_row=20,#fine_col=35);
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=7,#fine_row=1,#fine_col=61);
+           #new_row=22,#new_col=7,#fine_row=20,#fine_col=61);
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=9,#fine_row=1,#fine_col=20);
+           #new_row=22,#new_col=9,#fine_row=20,#fine_col=20);
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=10,#fine_row=1,#fine_col=37);
+           #new_row=22,#new_col=10,#fine_row=20,#fine_col=37);
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=12,#fine_row=1,#fine_col=8);
+           #new_row=22,#new_col=12,#fine_row=20,#fine_col=8);
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=13,#fine_row=1,#fine_col=30);
+           #new_row=22,#new_col=13,#fine_row=20,#fine_col=30);
       Send(self,@NewHold,#what=Create(&BarStool),
-           #new_row=22,#new_col=14,#fine_row=1,#fine_col=53);
+           #new_row=22,#new_col=14,#fine_row=20,#fine_col=53);
       propagate;
    }
 
