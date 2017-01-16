@@ -53,7 +53,8 @@ messages:
    CreateStandardExits()
    {
       plExits = $;
-      plExits = Cons([ 47,3, ROOM_LOCKED_DOOR ],plExits);
+      plExits = Cons([ 8,7, ROOM_LOCKED_DOOR ],plExits);
+      plExits = Cons([ 12,15, ROOM_LOCKED_DOOR ],plExits);
 
       plExits = Cons([ 40, 8, RID_TOS_HALL, 9, 2, ROTATE_180 ],plExits);
 
@@ -158,42 +159,40 @@ messages:
 
       //Roundabout Lights going from right around
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=31,#new_col=3,
-           #fine_row=61,#fine_col=48,#new_angle=ANGLE_EAST);
+           #fine_row=10,#fine_col=30,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=36,#new_col=8,
            #fine_row=44,#fine_col=49,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=43,#new_col=8,
-           #fine_row=25,#fine_col=51,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=46,#new_col=13,
-           #fine_row=20,#fine_col=13,#new_angle=ANGLE_EAST);
+           #fine_row=5,#fine_col=51,#new_angle=ANGLE_EAST);
+      Send(self,@NewHold,#what=Create(&Lamp),#new_row=46,#new_col=11,
+           #fine_row=20,#fine_col=40,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=46,#new_col=18,
-           #fine_row=9,#fine_col=27,#new_angle=ANGLE_EAST);
+           #fine_row=20,#fine_col=0,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=46,#new_col=22,
-           #fine_row=32,#fine_col=33,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=50,#new_col=31,
-           #fine_row=22,#fine_col=34,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=49,#new_col=42,
-           #fine_row=3,#fine_col=58,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=42,#new_col=51,
-           #fine_row=15,#fine_col=45,#new_angle=ANGLE_EAST);
+           #fine_row=20,#fine_col=33,#new_angle=ANGLE_EAST);
+      Send(self,@NewHold,#what=Create(&Lamp),#new_row=50,#new_col=32,
+           #fine_row=60,#fine_col=70,#new_angle=ANGLE_EAST);
+      Send(self,@NewHold,#what=Create(&Lamp),#new_row=50,#new_col=42,
+           #fine_row=10,#fine_col=20,#new_angle=ANGLE_EAST);
+      Send(self,@NewHold,#what=Create(&Lamp),#new_row=41,#new_col=52,
+           #fine_row=25,#fine_col=15,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=12,#new_col=28,
            #fine_row=45,#fine_col=10,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=11,#new_col=17,
            #fine_row=53,#fine_col=11,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=11,#new_col=13,
            #fine_row=50,#fine_col=0,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=11,#new_col=8,
-           #fine_row=10,#fine_col=14,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=17,#new_col=7,
-           #fine_row=34,#fine_col=70,#new_angle=ANGLE_EAST);
+      Send(self,@NewHold,#what=Create(&Lamp),#new_row=13,#new_col=8,
+           #fine_row=40,#fine_col=14,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=22,#new_col=7,
            #fine_row=13,#fine_col=50,#new_angle=ANGLE_EAST);
-      Send(self,@NewHold,#what=Create(&Lamp),#new_row=26,#new_col=3,
-           #fine_row=40,#fine_col=50,#new_angle=ANGLE_EAST);
+      Send(self,@NewHold,#what=Create(&Lamp),#new_row=27,#new_col=3,
+           #fine_row=0,#fine_col=30,#new_angle=ANGLE_EAST);
       //TOS Arena Lamps
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=27,#new_col=19,
-           #fine_row=5,#fine_col=52,#new_angle=ANGLE_EAST);
+           #fine_row=5,#fine_col=70,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=30,#new_col=19,
-           #fine_row=32,#fine_col=51,#new_angle=ANGLE_EAST);
+           #fine_row=55,#fine_col=70,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=27,#new_col=23,
            #fine_row=35,#fine_col=35,#new_angle=ANGLE_EAST);
       Send(self,@NewHold,#what=Create(&Lamp),#new_row=21,#new_col=23,
