@@ -20,7 +20,7 @@ resources:
    include tosdeatharena.lkod
 
    room_tosdeatharena = tosarena_death.roo
-   room_name_tosdeatharena = "Tos Death Arena"
+   room_name_tosdeatharena = "The Arena of Death"
    tosdeatharena_music = nec02.ogg
    
    Death_Arena_door_open_sound = doordown.ogg
@@ -28,7 +28,7 @@ resources:
 
 classvars:
 
-   vrName = room_name_tosgrey
+   vrName = room_name_tosdeatharena
 
    viTeleport_Row = 15
    viTeleport_Col = 24
