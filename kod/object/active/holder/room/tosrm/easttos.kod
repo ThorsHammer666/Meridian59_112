@@ -18,7 +18,8 @@ resources:
 
    room_EastTos = toseast.roo
    name_EastTos = "East Ende"   
-   EastTos_dont_drink = "~k Ehh? You dont want to drink from the hole where the dogs drink from? That's disgusting!"
+   EastTos_dont_drink = "~kA voice mumbles, \"Ehh? You dont want to drink from the hole where the dogs drink from? That's disgusting!\"" 
+   
    EastTos_music = tos.ogg
    wind_sound_easttos = ambcntry.ogg
    wind1_sound_easttos = rs_wind.ogg
